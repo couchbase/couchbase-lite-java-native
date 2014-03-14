@@ -1,0 +1,84 @@
+apply plugin: 'c'
+apply plugin: 'java'
+
+version = '1.0'
+
+model {
+    platforms {
+        osx_x86 {
+            architecture "x86"
+            operatingSystem "osx"
+        }
+        osx_x86_64 {
+            architecture "x86_64"
+            operatingSystem "osx"
+        }
+        linux_x86 {
+            architecture "x86"
+            operatingSystem "linux"
+        }
+        windows_x86 {
+            architecture "x86"
+            operatingSystem "windows"
+        }
+    }
+}
+
+sources {
+    native_library {
+        c {
+            source {
+                srcDir "src/main/c"
+            }
+            exportedHeaders {
+                srcDir "src/main/include"
+            }
+        }
+    }
+}
+
+libraries {
+    native_library {
+        baseName "CouchbaseLiteJavaNative"
+    }
+
+    all {
+        targetPlatforms "osx_x86", "osx_x86_64", "linux_x86", "windows_x86"
+
+        binaries.withType(SharedLibraryBinary) { binary ->
+            if (targetPlatform.operatingSystem.macOsX) {
+                cCompiler.args '-I', "/System/Library/Frameworks/JavaVM.framework/Headers"
+                linker.args '-framework', "JavaVM"
+            } else if (targetPlatform.operatingSystem.linux) {
+                cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+                cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
+            } else if (targetPlatform.operatingSystem.windows) {
+                cCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+                cCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+                linker.args "--add-stdcall-alias"
+            }
+        }
+    }
+}
+
+binaries.withType(SharedLibraryBinary) { binary ->
+    if (!buildable) {
+        return
+    }
+
+    def builderTask = binary.tasks.builder
+
+    if (targetPlatform.operatingSystem.macOsX) {
+        jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") {
+            from (builderTask.outputFile) {
+                rename ".dylib", ".jnilib"
+            }
+        }
+    } else {
+        jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") {
+            from builderTask.outputFile
+        }
+    }
+
+    jar.dependsOn builderTask
+}
