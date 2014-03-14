@@ -6,7 +6,6 @@ This is a shared native SQLite library used for [Couchbase Lite Java](https://gi
 
 ```
 $ git clone https://github.com/couchbase/couchbase-lite-java-native.git
-
 ```
 
 ## Support Platform
@@ -19,7 +18,6 @@ The project is using [Gradle](http://www.gradle.org) to build and package the na
 ```
 $ gradlew clean
 $ gradlew build
-	
 ```
 
 ## Troubleshooting
