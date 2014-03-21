@@ -18,7 +18,7 @@ static void _log(JNIEnv * env, int logLevel, const char * fmt, va_list ap)
 {
 	static jclass LogClass;
 	if (!LogClass) {
-		jclass clazz = (*env)->FindClass(env, "com/couchbase/cblite/util/Log");
+		jclass clazz = (*env)->FindClass(env, "com/couchbase/lite/util/Log");
 
 		if (clazz != NULL) {
 			LogClass = (jclass)((*env)->NewGlobalRef(env, clazz));

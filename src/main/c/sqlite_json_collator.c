@@ -18,7 +18,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <dlfcn.h>
 #include <ctype.h>
 #include <string.h>
 
@@ -46,6 +45,7 @@ typedef enum {
 	kObject,
 	kIllegal
 } ValueType;
+
 
 // "Raw" ordering is: 0:number, 1:false, 2:null, 3:true, 4:object, 5:array, 6:string
 // (according to view_collation_raw.js)
@@ -175,7 +175,7 @@ static int compareStringsASCII(const char** in1, const char** in2) {
 	return 0;
 }
 
-static char* createStringFromJSON(const char** in) {
+static const char* createStringFromJSON(const char** in) {
 	// Scan the JSON string to find its end and whether it contains escapes:
 	const char* start = ++*in;
 	unsigned escapes = 0;
@@ -204,18 +204,19 @@ static char* createStringFromJSON(const char** in) {
 		*dst++ = c;
 	}
 	*dst++ = 0; //null terminate
-	start = buf;
 
-	return buf;
+	return (const char *)buf;
 }
 
+int (*uca_string_compare)(const char *, const char*);
+
 static int compareStringsUnicode(const char** in1, const char** in2) {
-	const char* str1 = createStringFromJSON(in1);
+    // HACK : calling back to Java to do unicode string compare.
+    const char* str1 = createStringFromJSON(in1);
 	const char* str2 = createStringFromJSON(in2);
 
-	// TODO: This is wrong but at least allows this to run.  We need to actually
-	// do a locale specific Unicode compare.
-	return compareStringsASCII(&str1, &str2);
+
+	return uca_string_compare(str1, str2);
 }
 
 // SQLite collation function for JSON-formatted strings.
@@ -305,10 +306,10 @@ int collateJSON(void *context, int len1, const void * chars1, int len2, const vo
 }
 
 // Init method.
-
-void sqlite_json_collator_init(sqlite3 * db)
-{
+void sqlite_json_collator_init(sqlite3 * db, int (*unicode_string_compare)(const char *, const char*)) {
+    uca_string_compare = unicode_string_compare;
 	sqlite3_create_collation(db, "JSON", SQLITE_UTF8, sqlite_json_colator_Unicode, collateJSON);
 	sqlite3_create_collation(db, "JSON_RAW", SQLITE_UTF8, sqlite_json_colator_Raw, collateJSON);
 	sqlite3_create_collation(db, "JSON_ASCII", SQLITE_UTF8, sqlite_json_colator_ASCII, collateJSON);
 }
+

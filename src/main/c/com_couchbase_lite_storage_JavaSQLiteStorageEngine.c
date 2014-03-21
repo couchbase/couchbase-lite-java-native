@@ -89,11 +89,10 @@ static bool _setBindArgs(JNIEnv * env, sqlite3_stmt * stmt, jobjectArray bindArg
 	for(i=0; i<length; i++)
 	{
 		 jobject bindArg = (*env)->GetObjectArrayElement(env, bindArgs, i);
-		 jclass bindArgClass = (*env)->GetObjectClass(env, bindArg);
-
 		 if (!bindArg) {
 			 sqlite3_bind_null(stmt, i+1);
 		 } else {
+		     jclass bindArgClass = (*env)->GetObjectClass(env, bindArg);
 			 if((*env)->IsSameObject(env, bindArgClass, StringClass) == JNI_TRUE)
 			 {
 				 const char * chars = (*env)->GetStringUTFChars(env, bindArg, 0);
@@ -108,6 +107,7 @@ static bool _setBindArgs(JNIEnv * env, sqlite3_stmt * stmt, jobjectArray bindArg
 				 }
 			 } else if((*env)->IsSameObject(env, bindArgClass, IntegerClass) == JNI_TRUE) {
 				 jint value = (*env)->CallIntMethod(env, bindArg, intValueMethod);
+
 				 int status = sqlite3_bind_int(stmt, i+1, value);
 
 				 if (status != SQLITE_OK) {
@@ -128,6 +128,7 @@ static bool _setBindArgs(JNIEnv * env, sqlite3_stmt * stmt, jobjectArray bindArg
 				 }
 			 } else if((*env)->IsSameObject(env, bindArgClass, BooleanClass) == JNI_TRUE) {
 				 jboolean value = (*env)->CallBooleanMethod(env, bindArg, booleanValueMethod);
+
 				 int status = sqlite3_bind_int(stmt, i+1, (value == true ? 1 : 0));
 
 				 if (status != SQLITE_OK) {
@@ -201,6 +202,30 @@ static sqlite3_stmt * _createStatement(JNIEnv * env, jobject this, jstring sql, 
  * INIT *
  ********/
 
+JavaVM *cached_jvm;
+jclass collator_clazz;
+jmethodID unicode_compare_method;
+
+JNIEnv *getEnv() {
+	JNIEnv *env;
+	(*cached_jvm)->GetEnv(cached_jvm, (void **)&env, JNI_VERSION_1_2);
+	return env;
+}
+
+// HACK : Call back to Java to do Unicode string comparison
+int unicode_string_compare(const char *str1, const char *str2) {
+    JNIEnv *env = getEnv();
+
+    jstring jstr1 = (*env)->NewStringUTF(env, str1);
+	jstring jstr2 = (*env)->NewStringUTF(env, str2);
+
+	int result = (*env)->CallStaticIntMethod(env, collator_clazz, unicode_compare_method, jstr1, jstr2);
+	(*env)->DeleteLocalRef(env, jstr1);
+	(*env)->DeleteLocalRef(env, jstr2);
+
+	return result;
+}
+
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * jvm, void * reserved) {
 	// Try to get a reference to the current environment.
 	JNIEnv * env;
@@ -226,6 +251,23 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * jvm, void * reserved) {
 	LongClass = (jclass)(*env)->NewGlobalRef(env, (*env)->FindClass(env, "java/lang/Long"));
 	BooleanClass = (jclass)(*env)->NewGlobalRef(env, (*env)->FindClass(env, "java/lang/Boolean"));
 	ByteArrayClass = (jclass)(*env)->NewGlobalRef(env, (*env)->FindClass(env, "[B"));
+
+	// Unicode String Compare
+	cached_jvm = jvm;
+	clazz = (*env)->FindClass(env, "com/couchbase/lite/util/JsonCollator");
+	if (clazz == NULL) {
+        return JNI_ERR;
+    }
+
+    collator_clazz = (jclass)((*env)->NewGlobalRef(env, clazz));
+    if (collator_clazz == NULL) {
+        return JNI_ERR;
+    }
+
+    unicode_compare_method = (*env)->GetStaticMethodID(env, clazz, "compareStringsUnicode", "(Ljava/lang/String;Ljava/lang/String;)I");
+    if (unicode_compare_method == NULL) {
+        return JNI_ERR;
+    }
 
 	return JNI_VERSION_1_2;
 }
@@ -271,7 +313,7 @@ JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngi
 		return false;
 	}
 
-	sqlite_json_collator_init(db);
+	sqlite_json_collator_init(db, &unicode_string_compare);
 
 	_setDatabaseHandle(env, this, db);
 

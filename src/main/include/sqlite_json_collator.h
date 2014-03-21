@@ -6,6 +6,7 @@
  */
 
 #include <sqlite3.h>
+#include <jni.h>
 
 #ifndef SQLITE_JSON_COLLATOR_H_
 #define SQLITE_JSON_COLLATOR_H_
@@ -13,7 +14,7 @@
 extern "C" {
 #endif
 
-void sqlite_json_collator_init(sqlite3 * db);
+void sqlite_json_collator_init(sqlite3 * db, int (*unicode_string_compare)(const char *, const char*));
 
 #ifdef __cplusplus
 }
