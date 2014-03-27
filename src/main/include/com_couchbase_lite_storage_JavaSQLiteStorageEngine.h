@@ -9,107 +9,107 @@ extern "C" {
 #endif
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
- * Method:    open
- * Signature: (Ljava/lang/String;)Z
+ * Method:    _open
+ * Signature: (Ljava/lang/String;)J
  */
-JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1open
+JNIEXPORT jlong JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1open
   (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
- * Method:    getVersion
- * Signature: ()I
+ * Method:    _getVersion
+ * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_getVersion
-  (JNIEnv *, jobject);
+JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1getVersion
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
- * Method:    setVersion
- * Signature: (I)V
+ * Method:    _setVersion
+ * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_setVersion
-  (JNIEnv *, jobject, jint);
+JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1setVersion
+  (JNIEnv *, jobject, jlong, jint);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
- * Method:    beginTransaction
- * Signature: ()V
+ * Method:    _beginTransaction
+ * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_beginTransaction
-  (JNIEnv *, jobject);
+JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1beginTransaction
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
  * Method:    _commit
- * Signature: ()V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1commit
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
  * Method:    _rollback
- * Signature: ()V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1rollback
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
  * Method:    _execute
- * Signature: (Ljava/lang/String;)V
+ * Signature: (JLjava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1execute__Ljava_lang_String_2
-  (JNIEnv *, jobject, jstring);
+JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1execute__JLjava_lang_String_2
+  (JNIEnv *, jobject, jlong, jstring);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
  * Method:    _execute
- * Signature: (Ljava/lang/String;[Ljava/lang/Object;)V
+ * Signature: (JLjava/lang/String;[Ljava/lang/Object;)V
  */
-JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1execute__Ljava_lang_String_2_3Ljava_lang_Object_2
-  (JNIEnv *, jobject, jstring, jobjectArray);
+JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1execute__JLjava_lang_String_2_3Ljava_lang_Object_2
+  (JNIEnv *, jobject, jlong, jstring, jobjectArray);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
  * Method:    _query
- * Signature: (Ljava/lang/String;[Ljava/lang/String;)Lcom/couchbase/cblite/storage/JavaSQLiteStorageEngine/StatementCursor;
+ * Signature: (JLjava/lang/String;[Ljava/lang/String;)Lcom/couchbase/lite/storage/JavaSQLiteStorageEngine/StatementCursor;
  */
 JNIEXPORT jobject JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1query
-  (JNIEnv *, jobject, jstring, jobjectArray);
+  (JNIEnv *, jobject, jlong, jstring, jobjectArray);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
  * Method:    _insert
- * Signature: (Ljava/lang/String;[Ljava/lang/Object;)J
+ * Signature: (JLjava/lang/String;[Ljava/lang/Object;)J
  */
 JNIEXPORT jlong JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1insert
-  (JNIEnv *, jobject, jstring, jobjectArray);
+  (JNIEnv *, jobject, jlong, jstring, jobjectArray);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
  * Method:    _update
- * Signature: (Ljava/lang/String;[Ljava/lang/Object;)I
+ * Signature: (JLjava/lang/String;[Ljava/lang/Object;)I
  */
 JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1update
-  (JNIEnv *, jobject, jstring, jobjectArray);
+  (JNIEnv *, jobject, jlong, jstring, jobjectArray);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
  * Method:    _delete
- * Signature: (Ljava/lang/String;[Ljava/lang/Object;)I
+ * Signature: (JLjava/lang/String;[Ljava/lang/Object;)I
  */
 JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1delete
-  (JNIEnv *, jobject, jstring, jobjectArray);
+  (JNIEnv *, jobject, jlong, jstring, jobjectArray);
 
 /*
  * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
- * Method:    close
- * Signature: ()V
+ * Method:    _close
+ * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_close
-  (JNIEnv *, jobject);
+JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1close
+  (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus
 }

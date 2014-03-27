@@ -55,20 +55,45 @@ static jlong _toPointer(void * value)
     return ret.j;
 }
 
-static sqlite3 * _getDatabaseHandle(JNIEnv * env, jobject this)
-{
-	static jfieldID handleField;
-    if (!handleField) handleField = (*env)->GetFieldID(env, JavaSQLiteStorageEngineClass, "handle", "J");
+static void _debug(JNIEnv * env, jobjectArray bindArgs) {
+    static jmethodID intValueMethod = 0;
+    	if (!intValueMethod) intValueMethod = (*env)->GetMethodID(env, IntegerClass, "intValue", "()I");
+    	static jmethodID longValueMethod = 0;
+    	if (!longValueMethod) longValueMethod = (*env)->GetMethodID(env, LongClass, "longValue", "()J");
+    	static jmethodID booleanValueMethod = 0;
+    	if (!booleanValueMethod) booleanValueMethod = (*env)->GetMethodID(env, BooleanClass, "booleanValue", "()Z");
 
-    return _fromPointer((*env)->GetLongField(env, this, handleField));
-}
-
-static void _setDatabaseHandle(JNIEnv * env, jobject this, sqlite3 * handle)
-{
-    static jfieldID handleField;
-    if (!handleField) handleField = (*env)->GetFieldID(env, JavaSQLiteStorageEngineClass, "handle", "J");
-
-    (*env)->SetLongField(env, this, handleField, _toPointer(handle));
+    	int length = (*env)->GetArrayLength(env, bindArgs);
+    	int i;
+    	for(i=0; i<length; i++)
+    	{
+    	    printf("ARG: %d : ", i);
+    		 jobject bindArg = (*env)->GetObjectArrayElement(env, bindArgs, i);
+    		 if (!bindArg) {
+    		    printf("NULL\n");
+    		 } else {
+    		     jclass bindArgClass = (*env)->GetObjectClass(env, bindArg);
+    			 if((*env)->IsSameObject(env, bindArgClass, StringClass) == JNI_TRUE)
+    			 {
+    				 const char * chars = (*env)->GetStringUTFChars(env, bindArg, 0);
+    				 printf("String : %s\n", chars);
+    			 } else if((*env)->IsSameObject(env, bindArgClass, IntegerClass) == JNI_TRUE) {
+    				 jint value = (*env)->CallIntMethod(env, bindArg, intValueMethod);
+    				 printf("INT : %ld\n", value);
+    			 } else if((*env)->IsSameObject(env, bindArgClass, LongClass) == JNI_TRUE) {
+    				 jlong value = (*env)->CallLongMethod(env, bindArg, longValueMethod);
+    				 printf("INT : %lld\n", value);
+    			 } else if((*env)->IsSameObject(env, bindArgClass, BooleanClass) == JNI_TRUE) {
+    				 jboolean value = (*env)->CallBooleanMethod(env, bindArg, booleanValueMethod);
+                     printf("BOOL\n");
+    			 } else if((*env)->IsSameObject(env, bindArgClass, ByteArrayClass) == JNI_TRUE) {
+    				 printf("BYTE\n");
+    			 } else {
+    			    printf("ERROR\n");
+    				 log_e(env, "BindArgs: Error binding arg %d.  Unsupported type", i+1);
+    			 }
+    		 }
+    	}
 }
 
 static bool _setBindArgs(JNIEnv * env, sqlite3_stmt * stmt, jobjectArray bindArgs)
@@ -159,10 +184,8 @@ static bool _setBindArgs(JNIEnv * env, sqlite3_stmt * stmt, jobjectArray bindArg
 	return true;
 }
 
-static sqlite3_stmt * _createStatementWithCString(JNIEnv * env, jobject this, const char * sql, jobjectArray bindArgs, bool throwException)
+static sqlite3_stmt * _createStatementWithCString(JNIEnv * env, jobject this, sqlite3 * db, const char * sql, jobjectArray bindArgs, bool throwException)
 {
-	sqlite3 * db = _getDatabaseHandle(env, this);
-
 	if(!db) {
 		log_e(env, "CreateStatement: Database not open");
 		if (throwException) _throwException(env, "CreateStatement: Database not open");
@@ -189,10 +212,10 @@ static sqlite3_stmt * _createStatementWithCString(JNIEnv * env, jobject this, co
 	return stmt;
 }
 
-static sqlite3_stmt * _createStatement(JNIEnv * env, jobject this, jstring sql, jobjectArray bindArgs, bool throwException)
+static sqlite3_stmt * _createStatement(JNIEnv * env, jobject this, sqlite3 * db, jstring sql, jobjectArray bindArgs, bool throwException)
 {
 	const char * sqlStr = (*env)->GetStringUTFChars(env, sql, 0);
-	sqlite3_stmt * stmt = _createStatementWithCString(env, this, sqlStr, bindArgs, throwException);
+	sqlite3_stmt * stmt = _createStatementWithCString(env, this, db, sqlStr, bindArgs, throwException);
 	(*env)->ReleaseStringUTFChars(env, sql, sqlStr);
 
 	return stmt;
@@ -288,16 +311,10 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM * jvm, void * reserved) {
  * STORAGE ENGINE *
  ******************/
 
-JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1open
-	(JNIEnv * env, jobject this, jstring path)
+JNIEXPORT jlong JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1open
+  (JNIEnv * env, jobject this, jstring path)
 {
-	sqlite3 * db = _getDatabaseHandle(env, this);
-
-	if (db) {
-		log_e(env, "Open: Database already open");
-
-		return false;
-	}
+    sqlite3 * db;
 
 	const char * pathStr = (*env)->GetStringUTFChars(env, path, 0);
 	int status = sqlite3_open(pathStr, &db);
@@ -315,16 +332,14 @@ JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngi
 
 	sqlite_json_collator_init(db, &unicode_string_compare);
 
-	_setDatabaseHandle(env, this, db);
-
-	return true;
+	return _toPointer(db);
 }
 
-JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_getVersion
-	(JNIEnv * env, jobject this)
+JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1getVersion
+	(JNIEnv * env, jobject this, jlong handle)
 {
 	const char * sql = "PRAGMA user_version";
-	sqlite3_stmt * stmt = _createStatementWithCString(env, this, sql, NULL, false);
+	sqlite3_stmt * stmt = _createStatementWithCString(env, this, _fromPointer(handle), sql, NULL, false);
 	if (!stmt) {
 		return 0;
 	}
@@ -346,10 +361,10 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_g
 	return version;
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_setVersion
-	(JNIEnv * env, jobject this, jint version)
+JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1setVersion
+	(JNIEnv * env, jobject this, jlong handle, jint version)
 {
-	sqlite3 * db = _getDatabaseHandle(env, this);
+	sqlite3 * db = _fromPointer(handle);
 
 	if(!db) {
 		log_e(env, "SetVersion: Database not open");
@@ -369,10 +384,10 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_s
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_beginTransaction
-	(JNIEnv * env, jobject this)
+JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1beginTransaction
+	(JNIEnv * env, jobject this, jlong handle)
 {
-	sqlite3 * db = _getDatabaseHandle(env, this);
+	sqlite3 * db = _fromPointer(handle);
 
 	if(!db) {
 		log_e(env, "BeginTransaction: Database not open");
@@ -386,6 +401,8 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_b
 	if (status != SQLITE_OK) {
 		log_e(env, "BeginTransaction: Error (%d) executing SQL: %s", status, error);
 
+		_throwException(env, "Execute: Error (%d) executing SQL: %s", status, error);
+
 		sqlite3_free(error);
 
 		return;
@@ -393,9 +410,9 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_b
 }
 
 JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1commit
-	(JNIEnv * env, jobject this)
+	(JNIEnv * env, jobject this, jlong handle)
 {
-	sqlite3 * db = _getDatabaseHandle(env, this);
+	sqlite3 * db = _fromPointer(handle);
 
 	if(!db) {
 		log_e(env, "Commit: Database not open");
@@ -416,9 +433,9 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 }
 
 JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1rollback
-	(JNIEnv * env, jobject this)
+	(JNIEnv * env, jobject this, jlong handle)
 {
-	sqlite3 * db = _getDatabaseHandle(env, this);
+	sqlite3 * db = _fromPointer(handle);
 
 	if(!db) {
 		log_e(env, "Rollback: Database not open");
@@ -438,10 +455,10 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1execute__Ljava_lang_String_2
-	(JNIEnv * env, jobject this, jstring sql)
+JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1execute__JLjava_lang_String_2
+	(JNIEnv * env, jobject this, jlong handle, jstring sql)
 {
-	sqlite3 * db = _getDatabaseHandle(env, this);
+	sqlite3 * db = _fromPointer(handle);
 
 	if(!db) {
 		log_e(env, "Execute: Database not open");
@@ -464,10 +481,12 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1execute__Ljava_lang_String_2_3Ljava_lang_Object_2
-	(JNIEnv * env, jobject this, jstring sql, jobjectArray bindArgs)
+JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1execute__JLjava_lang_String_2_3Ljava_lang_Object_2
+	(JNIEnv * env, jobject this, jlong handle, jstring sql, jobjectArray bindArgs)
 {
-	sqlite3_stmt * stmt = _createStatement(env, this, sql, bindArgs, true);
+	sqlite3 * db = _fromPointer(handle);
+
+    sqlite3_stmt * stmt = _createStatement(env, this, db, sql, bindArgs, true);
 	if (!stmt) {
 		return;
 	}
@@ -491,9 +510,11 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 }
 
 JNIEXPORT jobject JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1query
-	(JNIEnv * env, jobject this, jstring sql, jobjectArray bindArgs)
+	(JNIEnv * env, jobject this, jlong handle, jstring sql, jobjectArray bindArgs)
 {
-	sqlite3_stmt * stmt = _createStatement(env, this, sql, bindArgs, false);
+	sqlite3 * db = _fromPointer(handle);
+
+    sqlite3_stmt * stmt = _createStatement(env, this, db, sql, bindArgs, false);
 
 	static jmethodID statementCursorCtor = 0;
 	if (!statementCursorCtor) statementCursorCtor = (*env)->GetMethodID(env, JavaSQLiteStorageEngine_StatementCursorClass, "<init>", "(J)V");
@@ -504,23 +525,29 @@ JNIEXPORT jobject JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngin
 }
 
 JNIEXPORT jlong JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1insert
-	(JNIEnv * env, jobject this, jstring sql, jobjectArray bindArgs)
+	(JNIEnv * env, jobject this, jlong handle, jstring sql, jobjectArray bindArgs)
 {
-	sqlite3_stmt * stmt = _createStatement(env, this, sql, bindArgs, false);
+	sqlite3 * db = _fromPointer(handle);
+
+    sqlite3_stmt * stmt = _createStatement(env, this, db, sql, bindArgs, false);
 	if (!stmt) {
 		return 0;
 	}
 
+    const char * debugSql = (*env)->GetStringUTFChars(env, sql, 0);
+    //printf("INSERT SQL : %s\n", debugSql);
+    //_debug(env, bindArgs);
+    //printf("HANDLE : %lld\n", handle);
+    //printf("--------\n");
 	int status = sqlite3_step(stmt);
 	if (status != SQLITE_ROW && status != SQLITE_DONE) {
 		const char * sqlStr = (*env)->GetStringUTFChars(env, sql, 0);
-		log_e(env, "Insert: Error (%d) stepping statement: %s", status, sqlStr);
+		log_e(env, "Insert: Error (%d) stepping statement, SQL: %s", status, sqlStr);
 		(*env)->ReleaseStringUTFChars(env, sql, sqlStr);
 
 		return 0;
 	}
 
-	sqlite3 * db = sqlite3_db_handle(stmt);
 	sqlite_int64 rowId = sqlite3_last_insert_rowid(db);
 
 	status = sqlite3_finalize(stmt);
@@ -534,9 +561,11 @@ JNIEXPORT jlong JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_
 }
 
 JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1update
-	(JNIEnv * env, jobject this, jstring sql, jobjectArray bindArgs)
+	(JNIEnv * env, jobject this, jlong handle, jstring sql, jobjectArray bindArgs)
 {
-	sqlite3_stmt * stmt = _createStatement(env, this, sql, bindArgs, false);
+    sqlite3 * db = _fromPointer(handle);
+
+	sqlite3_stmt * stmt = _createStatement(env, this, db, sql, bindArgs, false);
 	if (!stmt) {
 		return 0;
 	}
@@ -550,7 +579,6 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 		return 0;
 	}
 
-	sqlite3 * db = sqlite3_db_handle(stmt);
 	int changeCount = sqlite3_changes(db);
 
 	status = sqlite3_finalize(stmt);
@@ -564,9 +592,11 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 }
 
 JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1delete
-	(JNIEnv * env, jobject this, jstring sql, jobjectArray bindArgs)
+	(JNIEnv * env, jobject this, jlong handle, jstring sql, jobjectArray bindArgs)
 {
-	sqlite3_stmt * stmt = _createStatement(env, this, sql, bindArgs, false);
+    sqlite3 * db = _fromPointer(handle);
+
+	sqlite3_stmt * stmt = _createStatement(env, this, db, sql, bindArgs, false);
 	if (!stmt) {
 		return 0;
 	}
@@ -580,7 +610,6 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 		return 0;
 	}
 
-	sqlite3 * db = sqlite3_db_handle(stmt);
 	int changeCount = sqlite3_changes(db);
 
 	status = sqlite3_finalize(stmt);
@@ -593,10 +622,10 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	return changeCount;
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_close
-	(JNIEnv * env, jobject this)
+JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1close
+	(JNIEnv * env, jobject this, jlong handle)
 {
-	sqlite3 * db = _getDatabaseHandle(env, this);
+	sqlite3 * db = _fromPointer(handle);
 
 	int status = sqlite3_close(db);
 	if (status != SQLITE_OK) {
