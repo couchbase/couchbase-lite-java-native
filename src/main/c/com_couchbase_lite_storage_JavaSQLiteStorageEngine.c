@@ -12,8 +12,11 @@
 #include "com_couchbase_lite_storage_JavaSQLiteStorageEngine_StatementCursor.h"
 
 #include "log.h"
+
 #include "sqlite3.h"
+
 #include "sqlite_json_collator.h"
+#include "sqlite_rev_collator.h"
 
 static jclass JavaSQLiteStorageEngineClass;
 static jclass JavaSQLiteStorageEngine_StatementCursorClass;
@@ -53,47 +56,6 @@ static jlong _toPointer(void * value)
 	jvalue ret;
     ret.l = value;
     return ret.j;
-}
-
-static void _debug(JNIEnv * env, jobjectArray bindArgs) {
-    static jmethodID intValueMethod = 0;
-    	if (!intValueMethod) intValueMethod = (*env)->GetMethodID(env, IntegerClass, "intValue", "()I");
-    	static jmethodID longValueMethod = 0;
-    	if (!longValueMethod) longValueMethod = (*env)->GetMethodID(env, LongClass, "longValue", "()J");
-    	static jmethodID booleanValueMethod = 0;
-    	if (!booleanValueMethod) booleanValueMethod = (*env)->GetMethodID(env, BooleanClass, "booleanValue", "()Z");
-
-    	int length = (*env)->GetArrayLength(env, bindArgs);
-    	int i;
-    	for(i=0; i<length; i++)
-    	{
-    	    printf("ARG: %d : ", i);
-    		 jobject bindArg = (*env)->GetObjectArrayElement(env, bindArgs, i);
-    		 if (!bindArg) {
-    		    printf("NULL\n");
-    		 } else {
-    		     jclass bindArgClass = (*env)->GetObjectClass(env, bindArg);
-    			 if((*env)->IsSameObject(env, bindArgClass, StringClass) == JNI_TRUE)
-    			 {
-    				 const char * chars = (*env)->GetStringUTFChars(env, bindArg, 0);
-    				 printf("String : %s\n", chars);
-    			 } else if((*env)->IsSameObject(env, bindArgClass, IntegerClass) == JNI_TRUE) {
-    				 jint value = (*env)->CallIntMethod(env, bindArg, intValueMethod);
-    				 printf("INT : %ld\n", value);
-    			 } else if((*env)->IsSameObject(env, bindArgClass, LongClass) == JNI_TRUE) {
-    				 jlong value = (*env)->CallLongMethod(env, bindArg, longValueMethod);
-    				 printf("INT : %lld\n", value);
-    			 } else if((*env)->IsSameObject(env, bindArgClass, BooleanClass) == JNI_TRUE) {
-    				 jboolean value = (*env)->CallBooleanMethod(env, bindArg, booleanValueMethod);
-                     printf("BOOL\n");
-    			 } else if((*env)->IsSameObject(env, bindArgClass, ByteArrayClass) == JNI_TRUE) {
-    				 printf("BYTE\n");
-    			 } else {
-    			    printf("ERROR\n");
-    				 log_e(env, "BindArgs: Error binding arg %d.  Unsupported type", i+1);
-    			 }
-    		 }
-    	}
 }
 
 static bool _setBindArgs(JNIEnv * env, sqlite3_stmt * stmt, jobjectArray bindArgs)
@@ -229,14 +191,16 @@ JavaVM *cached_jvm;
 jclass collator_clazz;
 jmethodID unicode_compare_method;
 
-JNIEnv *getEnv() {
+JNIEnv *getEnv() 
+{
 	JNIEnv *env;
 	(*cached_jvm)->GetEnv(cached_jvm, (void **)&env, JNI_VERSION_1_2);
 	return env;
 }
 
 // HACK : Call back to Java to do Unicode string comparison
-int unicode_string_compare(const char *str1, const char *str2) {
+int unicode_string_compare(const char *str1, const char *str2) 
+{
     JNIEnv *env = getEnv();
 
     jstring jstr1 = (*env)->NewStringUTF(env, str1);
@@ -249,7 +213,8 @@ int unicode_string_compare(const char *str1, const char *str2) {
 	return result;
 }
 
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * jvm, void * reserved) {
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * jvm, void * reserved) 
+{
 	// Try to get a reference to the current environment.
 	JNIEnv * env;
 	if (JNI_OK != (*jvm)->GetEnv(jvm, (void **)&env, JNI_VERSION_1_2)) return JNI_ERR;
@@ -295,7 +260,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * jvm, void * reserved) {
 	return JNI_VERSION_1_2;
 }
 
-JNIEXPORT void JNICALL JNI_OnUnload(JavaVM * jvm, void * reserved) {
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM * jvm, void * reserved) 
+{
 	// Try to get a reference to the current environment.
 	JNIEnv * env;
 	if (JNI_OK != (*jvm)->GetEnv(jvm, (void **)&env, JNI_VERSION_1_2)) return;
@@ -331,6 +297,7 @@ JNIEXPORT jlong JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_
 	}
 
 	sqlite_json_collator_init(db, &unicode_string_compare);
+	sqlite_rev_collator_init(db);
 
 	return _toPointer(db);
 }
@@ -364,6 +331,8 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1setVersion
 	(JNIEnv * env, jobject this, jlong handle, jint version)
 {
+	char sql[50];
+
 	sqlite3 * db = _fromPointer(handle);
 
 	if(!db) {
@@ -372,7 +341,8 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 		return;
 	}
 
-	const char * sql = "PRAGMA user_version = " + version;
+	sprintf(sql, "PRAGMA user_version = %ld", (long)version);
+	
 	char * error;
 	int status = sqlite3_exec(db, sql, 0, 0, &error);
 	if (status != SQLITE_OK) {
@@ -533,12 +503,7 @@ JNIEXPORT jlong JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_
 	if (!stmt) {
 		return 0;
 	}
-
-    const char * debugSql = (*env)->GetStringUTFChars(env, sql, 0);
-    //printf("INSERT SQL : %s\n", debugSql);
-    //_debug(env, bindArgs);
-    //printf("HANDLE : %lld\n", handle);
-    //printf("--------\n");
+	
 	int status = sqlite3_step(stmt);
 	if (status != SQLITE_ROW && status != SQLITE_DONE) {
 		const char * sqlStr = (*env)->GetStringUTFChars(env, sql, 0);
