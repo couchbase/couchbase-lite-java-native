@@ -25,6 +25,8 @@ extern "C" {
 
 void sqlite_rev_collator_init(sqlite3 * db);
 
+int sqlite_rev_collator_test(const char * str1, const char * str2);
+
 #ifdef __cplusplus
 }
 #endif

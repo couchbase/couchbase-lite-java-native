@@ -111,6 +111,22 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__1close
   (JNIEnv *, jobject, jlong);
 
+/*
+ * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
+ * Method:    nativeTestCollateJson
+ * Signature: (ILjava/lang/String;Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_nativeTestCollateJson
+  (JNIEnv *, jclass, jint, jstring, jstring);
+
+/*
+ * Class:     com_couchbase_lite_storage_JavaSQLiteStorageEngine
+ * Method:    nativeTestCollateRevIds
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_nativeTestCollateRevIds
+  (JNIEnv *, jclass, jstring, jstring);
+
 #ifdef __cplusplus
 }
 #endif

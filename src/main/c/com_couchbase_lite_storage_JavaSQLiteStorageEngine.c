@@ -676,3 +676,32 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_0
 		log_w(env, "Cursor.Close: Error (%d) finalizing statement: %s", status, sqlite3_sql(stmt));
 	}
 }
+
+JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_nativeTestCollateJson
+  (JNIEnv * env, jclass clazz, jint mode, jstring string1, jstring string2)
+{
+	const char* cstring1 = (*env)->GetStringUTFChars(env, string1, 0);
+	const char* cstring2 = (*env)->GetStringUTFChars(env, string2, 0);
+
+	sqlite_json_collator_setUnicodeStringCompare(&unicode_string_compare);
+	int result = sqlite_json_collator_test((void *)mode, cstring1, cstring2);
+	
+	(*env)->ReleaseStringUTFChars(env, string1, cstring1);
+	(*env)->ReleaseStringUTFChars(env, string2, cstring2);
+	
+	return result;
+}
+
+JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_nativeTestCollateRevIds
+  (JNIEnv * env, jclass clazz, jstring string1, jstring string2) 
+{
+	const char* cstring1 = (*env)->GetStringUTFChars(env, string1, 0);
+	const char* cstring2 = (*env)->GetStringUTFChars(env, string2, 0);
+
+	int result = sqlite_rev_collator_test(cstring1, cstring2);
+
+	(*env)->ReleaseStringUTFChars(env, string1, cstring1);
+	(*env)->ReleaseStringUTFChars(env, string2, cstring2);
+
+	return result;
+}
