@@ -31,7 +31,9 @@ static jclass ByteArrayClass;
 static void _throwException(JNIEnv *env, const char * fmt, ...)
 {
     static jmethodID throwExceptionMethod = 0;
-    if (!throwExceptionMethod) throwExceptionMethod = (*env)->GetStaticMethodID(env, JavaSQLiteStorageEngineClass, "throwSQLException", "(Ljava/lang/String;)V");
+    if (!throwExceptionMethod) {
+    	throwExceptionMethod = (*env)->GetStaticMethodID(env, JavaSQLiteStorageEngineClass, "throwSQLException", "(Ljava/lang/String;)V");
+    }
 
     va_list ap;
 	va_start(ap, fmt);
@@ -61,15 +63,26 @@ static jlong _toPointer(void * value)
 static bool _setBindArgs(JNIEnv * env, sqlite3_stmt * stmt, jobjectArray bindArgs)
 {
 	// Nothing to do if we don't have any bind args.
-	if (!bindArgs) return true;
+	if (!bindArgs) {
+		return true;
+	}
 
 	// Value Methods
 	static jmethodID intValueMethod = 0;
-	if (!intValueMethod) intValueMethod = (*env)->GetMethodID(env, IntegerClass, "intValue", "()I");
 	static jmethodID longValueMethod = 0;
-	if (!longValueMethod) longValueMethod = (*env)->GetMethodID(env, LongClass, "longValue", "()J");
 	static jmethodID booleanValueMethod = 0;
-	if (!booleanValueMethod) booleanValueMethod = (*env)->GetMethodID(env, BooleanClass, "booleanValue", "()Z");
+
+	if (!intValueMethod) {
+		intValueMethod = (*env)->GetMethodID(env, IntegerClass, "intValue", "()I");
+	}
+
+	if (!longValueMethod) {
+		longValueMethod = (*env)->GetMethodID(env, LongClass, "longValue", "()J");
+	}
+
+	if (!booleanValueMethod) {
+		booleanValueMethod = (*env)->GetMethodID(env, BooleanClass, "booleanValue", "()Z");
+	}
 
 	int length = (*env)->GetArrayLength(env, bindArgs);
 	int i;
@@ -150,8 +163,9 @@ static sqlite3_stmt * _createStatementWithCString(JNIEnv * env, jobject this, sq
 {
 	if(!db) {
 		log_e(env, "CreateStatement: Database not open");
-		if (throwException) _throwException(env, "CreateStatement: Database not open");
-
+		if (throwException) {
+			_throwException(env, "CreateStatement: Database not open");
+		}
 		return NULL;
 	}
 
@@ -217,7 +231,9 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * jvm, void * reserved)
 {
 	// Try to get a reference to the current environment.
 	JNIEnv * env;
-	if (JNI_OK != (*jvm)->GetEnv(jvm, (void **)&env, JNI_VERSION_1_2)) return JNI_ERR;
+	if (JNI_OK != (*jvm)->GetEnv(jvm, (void **)&env, JNI_VERSION_1_2)) {
+		return JNI_ERR;
+	}
 
 	// Try to find the Storage Engine class.
 	jclass clazz = (*env)->FindClass(env, "com/couchbase/lite/storage/JavaSQLiteStorageEngine");
@@ -487,8 +503,10 @@ JNIEXPORT jobject JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngin
     sqlite3_stmt * stmt = _createStatement(env, this, db, sql, bindArgs, false);
 
 	static jmethodID statementCursorCtor = 0;
-	if (!statementCursorCtor) statementCursorCtor = (*env)->GetMethodID(env, JavaSQLiteStorageEngine_StatementCursorClass, "<init>", "(J)V");
-
+	if (!statementCursorCtor) {
+		statementCursorCtor = (*env)->GetMethodID(env, JavaSQLiteStorageEngine_StatementCursorClass, "<init>", "(J)V");
+	}
+	
 	jobject cursor = (*env)->NewObject(env, JavaSQLiteStorageEngine_StatementCursorClass, statementCursorCtor, _toPointer(stmt));
 
 	return cursor;
