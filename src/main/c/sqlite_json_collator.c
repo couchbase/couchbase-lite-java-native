@@ -69,7 +69,16 @@ static ValueType valueTypeOf(char c) {
 		return kFalse;
 	case 't':
 		return kTrue;
-	case '0' ... '9':
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
 	case '-':
 		return kNumber;
 	case '"':
@@ -88,7 +97,6 @@ static ValueType valueTypeOf(char c) {
 		return kObject;
 	default:
 		// TODO: How/should we log unexpected characters?
-
 		return kIllegal;
 	}
 }
@@ -344,12 +352,20 @@ void sqlite_json_collator_setUnicodeStringCompare(int (*unicode_string_compare)(
 // Test method.
 int sqlite_json_collator_test(void *mode, const char * str1, const char * str2) {
 	// Be evil and put numeric garbage past the ends of str1 and str2 (see bug #138):
-    size_t len1 = strlen(str1), len2 = strlen(str2);
-    char buf1[len1 + 3], buf2[len2 + 3];
-    strlcpy(buf1, str1, sizeof(buf1));
-    strlcat(buf1, "99", sizeof(buf1));
-    strlcpy(buf2, str2, sizeof(buf2));
-    strlcat(buf2, "88", sizeof(buf2));
+	size_t len1 = strlen(str1), len2 = strlen(str2);
+    char* buf1 = (char*) malloc(len1 + 3);
+	char* buf2 = (char*) malloc(len2 + 3);
 
-    return collateJSON(mode, (int)len1, buf1, (int)len2, buf2);
+	strcpy(buf1, str1);
+	strcat(buf1, "99");
+
+	strcpy(buf2, str2);
+	strcat(buf2, "88");
+
+    int result = collateJSON(mode, (int)len1, buf1, (int)len2, buf2);
+
+    free(buf1);
+    free(buf2);
+
+    return result;
 }

@@ -1,7 +1,8 @@
 apply plugin: 'c'
 apply plugin: 'java'
+apply plugin: 'maven'
 
-version = '1.0'
+version = System.getenv("UPLOAD_VERSION_CBLITE")
 
 model {
     platforms {
@@ -17,17 +18,28 @@ model {
             architecture "x86"
             operatingSystem "linux"
         }
+        linux_x86_64 {
+            architecture "x86_64"
+            operatingSystem "linux"
+        }
         windows_x86 {
             architecture "x86"
             operatingSystem "windows"
         }
+        windows_x86_64 {
+            architecture "x86_64"
+            operatingSystem "windows"
+        }
+        windows_amd64 {
+            architecture "amd64"
+            operatingSystem "windows"
+        }
     }
 
-
     toolChains {
+        visualCpp(VisualCpp)
         gcc(Gcc)
         clang(Clang)
-        visualCpp(VisualCpp)
     }
 }
 
@@ -50,8 +62,6 @@ libraries {
     }
 
     all {
-        targetPlatforms "osx_x86", "osx_x86_64", "linux_x86", "windows_x86"
-
         binaries.withType(SharedLibraryBinary) { binary ->
             if (targetPlatform.operatingSystem.macOsX) {
                 cCompiler.args '-I', "/System/Library/Frameworks/JavaVM.framework/Headers"
@@ -88,4 +98,52 @@ binaries.withType(SharedLibraryBinary) { binary ->
     }
 
     jar.dependsOn builderTask
+}
+
+task createMavenDirectory(type: Exec) {
+    ext {
+        uploadUser = System.getenv("MAVEN_UPLOAD_USERNAME") + ":" + System.getenv("MAVEN_UPLOAD_PASSWORD")
+        mkcolPath  = System.getenv("MAVEN_UPLOAD_REPO_URL") + "com/couchbase/lite/java-native/" + version + "/"
+    }
+    commandLine "curl", "--user", uploadUser, "-X", "MKCOL", mkcolPath
+}
+
+// this hack is only needed for apache mod_dav based Maven repo's like file.couchbase.com.  otherwise, skip it
+createMavenDirectory.onlyIf { System.getenv("MAVEN_UPLOAD_REPO_URL").contains("files") }
+
+// first create the directory, then do the upload
+task uploadArchivesWrapper(dependsOn: createMavenDirectory) << {
+    uploadArchives.execute()
+}
+
+// this will upload, but will not first create a directory (which is needed on some servers)
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: System.getenv("MAVEN_UPLOAD_REPO_URL")) {
+                authentication(userName: System.getenv("MAVEN_UPLOAD_USERNAME"), password: System.getenv("MAVEN_UPLOAD_PASSWORD"))
+            }
+            pom.version = System.getenv("MAVEN_UPLOAD_VERSION")
+            pom.groupId = 'com.couchbase.lite'
+            pom.artifactId = 'java-native'
+            pom.project {
+                licenses {
+                    license {
+                        name 'Couchbase Community Edition License Agreement'
+                        url 'http://www.couchbase.com/agreement/community'
+                        distribution 'repo'
+                    }
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.java.srcDirs
+}
+
+artifacts {
+    archives sourcesJar
 }

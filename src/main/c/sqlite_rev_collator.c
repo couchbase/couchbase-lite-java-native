@@ -23,17 +23,23 @@
 
 #include "sqlite_rev_collator.h"
 
-static inline int sgn(int n) {
-    return n>0 ? 1 : (n<0 ? -1 : 0);
+#ifdef _MSC_VER
+  #define INLINE __forceinline /* use __forceinline (VC++ specific) */
+#else
+  #define INLINE inline        /* use standard inline */
+#endif
+
+static INLINE int sgn(int n) {
+    return n > 0 ? 1 : (n < 0 ? -1 : 0);
 }
 
-static int min(int a, int b) {
+static int getMin(int a, int b) {
 	return a < b ? a : b;
 }
 
 static int defaultCollate(const char* str1, int len1, const char* str2, int len2) {
-    int result = memcmp(str1, str2, min(len1, len2));
-    return sgn(result ?: (len1 - len2));
+    int result = memcmp(str1, str2, getMin(len1, len2));
+    return sgn(result ? result : (len1 - len2));
 }
 
 static int isXDigit(char ch) {
@@ -53,11 +59,9 @@ static int digitToInt(int c) {
 	}
 	if(c > 'a') {
 		return 10 + c - 'a';
-	}
-	else if(c > 'A') {
+	} else if(c > 'A') {
 		return 10 + c - 'A';
-	}
-	else {
+	} else {
 		return c - '0';
 	}
 }
@@ -96,8 +100,9 @@ int collateRevIDs(void *context,
         return defaultCollate(rev1,len1, rev2,len2);
 
     // Compare generation numbers; if they match, compare suffixes:
-    return sgn(gen1 - gen2) ?: defaultCollate(dash1+1, len1-(int)(dash1+1-rev1),
-                                              dash2+1, len2-(int)(dash2+1-rev2));
+    int result = sgn(gen1 - gen2);
+    return result ? result : defaultCollate(dash1+1, len1-(int)(dash1+1-rev1), 
+                                            dash2+1, len2-(int)(dash2+1-rev2));
 }
 
 // Init method.
