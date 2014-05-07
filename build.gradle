@@ -2,7 +2,7 @@ apply plugin: 'c'
 apply plugin: 'java'
 apply plugin: 'maven'
 
-version = System.getenv("UPLOAD_VERSION_CBLITE")
+version = System.getenv("MAVEN_UPLOAD_VERSION")
 
 model {
     platforms {
@@ -123,7 +123,7 @@ uploadArchives {
             repository(url: System.getenv("MAVEN_UPLOAD_REPO_URL")) {
                 authentication(userName: System.getenv("MAVEN_UPLOAD_USERNAME"), password: System.getenv("MAVEN_UPLOAD_PASSWORD"))
             }
-            pom.version = System.getenv("MAVEN_UPLOAD_VERSION")
+            pom.version = version
             pom.groupId = 'com.couchbase.lite'
             pom.artifactId = 'java-native'
             pom.project {
