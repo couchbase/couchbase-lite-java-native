@@ -89,16 +89,8 @@ binaries.withType(SharedLibraryBinary) { binary ->
 
     def builderTask = binary.tasks.builder
 
-    if (targetPlatform.operatingSystem.macOsX) {
-        jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") {
-            from (builderTask.outputFile) {
-                rename ".dylib", ".jnilib"
-            }
-        }
-    } else {
-        jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") {
+    jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") {
             from builderTask.outputFile
-        }
     }
 
     jar.dependsOn builderTask
