@@ -1,0 +1,197 @@
+//
+// To cross compile to ARM replace the default build.gradle with this file.
+// Before running the build install these additional linux packages
+//
+// gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+//
+apply plugin: 'c'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+version = System.getenv("MAVEN_UPLOAD_VERSION")
+
+model {
+    platforms {
+        osx_x86 {
+            architecture "x86"
+            operatingSystem "osx"
+        }
+        osx_x86_64 {
+            architecture "x86_64"
+            operatingSystem "osx"
+        }
+        linux_x86 {
+            architecture "x86"
+            operatingSystem "linux"
+        }
+        linux_x86_64 {
+            architecture "x86_64"
+            operatingSystem "linux"
+        }
+        linux_amd64 {
+            architecture "amd64"
+            operatingSystem "linux"
+        }
+        linux_arm {
+            architecture "arm"
+            operatingSystem "linux"
+        }
+        windows_x86 {
+            architecture "x86"
+            operatingSystem "windows"
+        }
+        windows_x86_64 {
+            architecture "x86_64"
+            operatingSystem "windows"
+        }
+        windows_amd64 {
+            architecture "amd64"
+            operatingSystem "windows"
+        }
+    }
+
+    toolChains {
+        visualCpp(VisualCpp)
+        gcc(Gcc)
+        gccArm(Gcc) {
+            getCppCompiler().setExecutable 'arm-linux-gnueabihf-g++'
+            getCCompiler().setExecutable 'arm-linux-gnueabihf-gcc'
+            getAssembler().setExecutable 'arm-linux-gnueabihf-as'
+            getLinker().setExecutable 'arm-linux-gnueabihf-gcc'
+            getStaticLibArchiver().setExecutable 'arm-linux-gnueabihf-ar'
+            addPlatformConfiguration(new ArmSupport())
+        }
+        clang(Clang)
+    }
+}
+
+    class ArmSupport implements TargetPlatformConfiguration {
+        boolean supportsPlatform(Platform element) {
+            return element.getArchitecture().name == "arm"
+        }
+
+        List<String> getCppCompilerArgs() {
+            []
+        }
+
+        List<String> getObjectiveCppCompilerArgs() {
+            []
+        }
+
+        List<String> getObjectiveCCompilerArgs() {
+            []
+        }
+
+        List<String> getCCompilerArgs() {
+            []
+        }
+
+        List<String> getAssemblerArgs() {
+            []
+        }
+
+        List<String> getLinkerArgs() {
+            []
+        }
+
+        List<String> getStaticLibraryArchiverArgs() {
+            []
+        }
+    }
+
+sources {
+    native_library {
+        c {
+            source {
+                srcDir "src/main/c"
+            }
+            exportedHeaders {
+                srcDir "src/main/include"
+            }
+        }
+    }
+}
+
+libraries {
+    native_library {
+        baseName "CouchbaseLiteJavaNative"
+    }
+
+    all {
+        binaries.withType(SharedLibraryBinary) { binary ->
+            if (targetPlatform.operatingSystem.macOsX) {
+                cCompiler.args '-I', "/System/Library/Frameworks/JavaVM.framework/Headers"
+                linker.args '-framework', "JavaVM"
+            } else if (targetPlatform.operatingSystem.linux) {
+                cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+                cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
+            } else if (targetPlatform.operatingSystem.windows) {
+                cCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+                cCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+                linker.args "--add-stdcall-alias"
+            }
+        }
+    }
+}
+
+binaries.withType(SharedLibraryBinary) { binary ->
+    if (!buildable) {
+        return
+    }
+
+    def builderTask = binary.tasks.builder
+
+    jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") {
+            from builderTask.outputFile
+    }
+
+    jar.dependsOn builderTask
+}
+
+task createMavenDirectory(type: Exec) {
+    ext {
+        uploadUser = System.getenv("MAVEN_UPLOAD_USERNAME") + ":" + System.getenv("MAVEN_UPLOAD_PASSWORD")
+        mkcolPath  = System.getenv("MAVEN_UPLOAD_REPO_URL") + "com/couchbase/lite/java-native/" + version + "/"
+    }
+    commandLine "curl", "--user", uploadUser, "-X", "MKCOL", mkcolPath
+}
+
+// this hack is only needed for apache mod_dav based Maven repo's like file.couchbase.com.  otherwise, skip it
+createMavenDirectory.onlyIf { System.getenv("MAVEN_UPLOAD_REPO_URL").contains("files") }
+
+// first create the directory, then do the upload
+task uploadArchivesWrapper(dependsOn: createMavenDirectory) << {
+    uploadArchives.execute()
+}
+
+// this will upload, but will not first create a directory (which is needed on some servers)
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: System.getenv("MAVEN_UPLOAD_REPO_URL")) {
+                authentication(userName: System.getenv("MAVEN_UPLOAD_USERNAME"), password: System.getenv("MAVEN_UPLOAD_PASSWORD"))
+            }
+            pom.version = version
+            pom.groupId = 'com.couchbase.lite'
+            pom.artifactId = 'java-native'
+            pom.project {
+                licenses {
+                    license {
+                        name 'Couchbase Community Edition License Agreement'
+                        url 'http://www.couchbase.com/agreement/community'
+                        distribution 'repo'
+                    }
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.java.srcDirs
+}
+
+artifacts {
+    archives sourcesJar
+}
