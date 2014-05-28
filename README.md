@@ -9,9 +9,11 @@ $ git clone https://github.com/couchbase/couchbase-lite-java-native.git
 ```
 
 ## Support Platform
-Currently the library has been compiled and tested on OSX 10.9 x86_64 and Windows 7 x86 (Using G++ distributed with [MinGW](http://www.mingw.org/)). 
+* Linux (x86, x86_64, amd64)
+* Windows (x86, x86_64)
+* OSX (x86, x86_64)
 
-## How to build or package
+## How to build
 
 The project is using [Gradle](http://www.gradle.org) to build and package the native binaries into a jar file (See Gradle [Building native binaries](http://www.gradle.org/docs/current/userguide/nativeBinaries.html) for more info). The packaged jar file will be located in build/libs folder.
 
@@ -20,8 +22,17 @@ $ gradlew clean
 $ gradlew build
 ```
 
-## Troubleshooting
-* Current MinGW does't include dflcn library. You will get the pre-built shared dlfcn-win32 binary for MinGW from this [link](https://code.google.com/p/dlfcn-win32/). Just simply extract and put all the files into your installed MinGW folder.
+### Linux 
+* To build the x86 binary on a 64-bit machine, you will need to setup a 64-bit toolchain as follows.
 
+```
+$ sudo apt-get install gcc-multilib
+$ sudo apt-get install g++-multilib
+```
 
+### Windows
+* Visual VC++ 2010 or later is recommended. 
+
+### OSX
+* Command Line Tools for Xcode is required. You may download the Command Line Tools from the [Apple Developer](https://developer.apple.com/xcode/downloads) website.
 
