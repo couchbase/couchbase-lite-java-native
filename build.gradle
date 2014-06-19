@@ -76,7 +76,6 @@ libraries {
             } else if (targetPlatform.operatingSystem.windows) {
                 cCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
                 cCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
-                linker.args "--add-stdcall-alias"
             }
         }
     }
