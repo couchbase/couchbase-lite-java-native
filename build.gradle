@@ -98,7 +98,7 @@ binaries.withType(SharedLibraryBinary) { binary ->
 task createMavenDirectory(type: Exec) {
     ext {
         uploadUser = System.getenv("MAVEN_UPLOAD_USERNAME") + ":" + System.getenv("MAVEN_UPLOAD_PASSWORD")
-        mkcolPath  = System.getenv("MAVEN_UPLOAD_REPO_URL") + "com/couchbase/lite/java-native/" + version + "/"
+        mkcolPath  = System.getenv("MAVEN_UPLOAD_REPO_URL") + "com/couchbase/lite/couchbase-lite-java-native/" + version + "/"
     }
     commandLine "curl", "--user", uploadUser, "-X", "MKCOL", mkcolPath
 }
@@ -120,7 +120,7 @@ uploadArchives {
             }
             pom.version = version
             pom.groupId = 'com.couchbase.lite'
-            pom.artifactId = 'java-native'
+            pom.artifactId = 'couchbase-lite-java-native'
             pom.project {
                 licenses {
                     license {
