@@ -49,7 +49,7 @@ model {
 
 sources {
     native_library {
-        c {
+        c(CSourceSet) {
             source {
                 srcDir "src/main/c"
             }
@@ -66,9 +66,10 @@ libraries {
     }
 
     all {
-        binaries.withType(SharedLibraryBinary) { binary ->
+        binaries.all {
             if (targetPlatform.operatingSystem.macOsX) {
-                cCompiler.args '-I', "/System/Library/Frameworks/JavaVM.framework/Headers"
+                cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+                cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
                 linker.args '-framework', "JavaVM"
             } else if (targetPlatform.operatingSystem.linux) {
                 cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
@@ -86,7 +87,7 @@ binaries.withType(SharedLibraryBinary) { binary ->
         return
     }
 
-    def builderTask = binary.tasks.builder
+    def builderTask = binary.tasks
 
     jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") {
             from builderTask.outputFile
