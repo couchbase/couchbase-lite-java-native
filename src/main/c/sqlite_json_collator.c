@@ -30,6 +30,34 @@
 // ASCII mode, which is like Unicode except that strings are compared as binary UTF-8.
 #define sqlite_json_colator_ASCII ((void*)2)
 
+
+static int cmp(int n1, int n2) {
+	int diff = n1 - n2;
+	return diff > 0 ? 1 : (diff < 0 ? -1 : 0);
+}
+
+static int dcmp(double n1, double n2) {
+	double diff = n1 - n2;
+	return diff > 0.0 ? 1 : (diff < 0.0 ? -1 : 0);
+}
+
+// Maps an ASCII character to its relative priority in the Unicode collation sequence.
+static uint8_t kCharPriority[128];
+// Same thing but case-insensitive.
+static uint8_t kCharPriorityCaseInsensitive[128];
+
+static void initializeCharPriorityMap(void) {
+    static const char* const kInverseMap = "\t\n\r `^_-,;:!?.'\"()[]{}@*/\\&#%+<=>|~$0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
+    uint8_t priority = 1;
+    for (unsigned i=0; i<strlen(kInverseMap); i++)
+        kCharPriority[(uint8_t)kInverseMap[i]] = priority++;
+
+    // This table gives lowercase letters the same priority as uppercase:
+    memcpy(kCharPriorityCaseInsensitive, kCharPriority, sizeof(kCharPriority));
+    for (uint8_t c = 'a'; c <= 'z'; c++)
+        kCharPriorityCaseInsensitive[c] = kCharPriority[toupper(c)];
+}
+
 // Types of values, ordered according to Couch collation order.
 typedef enum {
 	kEndArray,
@@ -46,20 +74,9 @@ typedef enum {
 	kIllegal
 } ValueType;
 
-
 // "Raw" ordering is: 0:number, 1:false, 2:null, 3:true, 4:object, 5:array, 6:string
 // (according to view_collation_raw.js)
 static int kRawOrderOfValueType[] = { -4, -3, -2, -1, 2, 1, 3, 0, 6, 5, 4, 7 };
-
-static int cmp(int n1, int n2) {
-	int diff = n1 - n2;
-	return diff > 0 ? 1 : (diff < 0 ? -1 : 0);
-}
-
-static int dcmp(double n1, double n2) {
-	double diff = n1 - n2;
-	return diff > 0.0 ? 1 : (diff < 0.0 ? -1 : 0);
-}
 
 static ValueType valueTypeOf(char c) {
 	switch (c) {
@@ -183,6 +200,55 @@ static int compareStringsASCII(const char** in1, const char** in2) {
 	return 0;
 }
 
+// Unicode collation, but fails (returns -2) if non-ASCII characters are found.
+// Basic rule is to compare case-insensitively, but if the strings compare equal, let the one that's
+// higher case-sensitively win (where uppercase is _greater_ than lowercase, unlike in ASCII.)
+static int compareStringsUnicodeFast(const char** in1, const char** in2) {
+    const char* str1 = *in1, *str2 = *in2;
+    int resultIfEqual = 0;
+    while(true) {
+        char c1 = *++str1;
+        char c2 = *++str2;
+
+        // If one string ends, the other is greater; if both end, they're equal:
+        if (c1 == '"') {
+            if (c2 == '"')
+                break;
+            else
+                return -1;
+        } else if (c2 == '"')
+            return 1;
+
+        // Handle escape sequences:
+        if (c1 == '\\')
+            c1 = convertEscape(&str1);
+        if (c2 == '\\')
+            c2 = convertEscape(&str2);
+
+        if ((c1 & 0x80) || (c2 & 0x80))
+            return -2; // fail: I only handle ASCII
+
+        // Compare the next characters, according to case-insensitive Unicode character priority:
+        int s = cmp(kCharPriorityCaseInsensitive[(uint8_t)c1],
+                    kCharPriorityCaseInsensitive[(uint8_t)c2]);
+        if (s)
+            return s;
+
+        // Remember case-sensitive result too
+        if (resultIfEqual == 0 && c1 != c2)
+            resultIfEqual = cmp(kCharPriority[(uint8_t)c1], kCharPriority[(uint8_t)c2]);
+    }
+
+    if (resultIfEqual)
+        return resultIfEqual;
+
+    // Strings are equal, so update the positions:
+    *in1 = str1 + 1;
+    *in2 = str2 + 1;
+    return 0;
+}
+
+
 static const char* createStringFromJSON(const char** in) {
 	// Scan the JSON string to find its end and whether it contains escapes:
 	const char* start = ++*in;
@@ -219,10 +285,14 @@ static const char* createStringFromJSON(const char** in) {
 int (*uca_string_compare)(const char *, const char*);
 
 static int compareStringsUnicode(const char** in1, const char** in2) {
+    int result = compareStringsUnicodeFast(in1, in2);
+    if (result > -2)
+        return result;
+
+    // Fast compare failed, so resort to using java.text.Collator
     // HACK : calling back to Java to do unicode string compare.
     const char* str1 = createStringFromJSON(in1);
 	const char* str2 = createStringFromJSON(in2);
-
 	return uca_string_compare(str1, str2);
 }
 
@@ -251,6 +321,14 @@ static double readNumber(const char* start, const char* end, char** endOfNumber)
 // WARNING: This function *only* works on valid JSON with no whitespace.
 // If called on non-JSON strings it is quite likely to crash!
 int collateJSON(void *context, int len1, const void * chars1, int len2, const void * chars2) {
+
+    static bool charPriorityMapInitialized = false;
+    if(!charPriorityMapInitialized){
+        initializeCharPriorityMap();
+        charPriorityMapInitialized = true;
+    }
+
+
 	const char* str1 = (const char*) chars1;
 	const char* str2 = (const char*) chars2;
 	int depth = 0;
