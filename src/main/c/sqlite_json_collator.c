@@ -31,6 +31,11 @@
 #define sqlite_json_colator_ASCII ((void*)2)
 
 
+/**
+ * Linux uint8_t is not defined.
+ * use unsigned char instead of unit8_t
+ */
+
 static int cmp(int n1, int n2) {
 	int diff = n1 - n2;
 	return diff > 0 ? 1 : (diff < 0 ? -1 : 0);
@@ -42,19 +47,19 @@ static int dcmp(double n1, double n2) {
 }
 
 // Maps an ASCII character to its relative priority in the Unicode collation sequence.
-static uint8_t kCharPriority[128];
+static unsigned char kCharPriority[128];
 // Same thing but case-insensitive.
-static uint8_t kCharPriorityCaseInsensitive[128];
+static unsigned char kCharPriorityCaseInsensitive[128];
 
 static void initializeCharPriorityMap(void) {
     static const char* const kInverseMap = "\t\n\r `^_-,;:!?.'\"()[]{}@*/\\&#%+<=>|~$0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
-    uint8_t priority = 1;
+    unsigned char priority = 1;
     for (unsigned i=0; i<strlen(kInverseMap); i++)
-        kCharPriority[(uint8_t)kInverseMap[i]] = priority++;
+        kCharPriority[(unsigned char)kInverseMap[i]] = priority++;
 
     // This table gives lowercase letters the same priority as uppercase:
     memcpy(kCharPriorityCaseInsensitive, kCharPriority, sizeof(kCharPriority));
-    for (uint8_t c = 'a'; c <= 'z'; c++)
+    for (unsigned char c = 'a'; c <= 'z'; c++)
         kCharPriorityCaseInsensitive[c] = kCharPriority[toupper(c)];
 }
 
@@ -229,14 +234,14 @@ static int compareStringsUnicodeFast(const char** in1, const char** in2) {
             return -2; // fail: I only handle ASCII
 
         // Compare the next characters, according to case-insensitive Unicode character priority:
-        int s = cmp(kCharPriorityCaseInsensitive[(uint8_t)c1],
-                    kCharPriorityCaseInsensitive[(uint8_t)c2]);
+        int s = cmp(kCharPriorityCaseInsensitive[(unsigned char)c1],
+                    kCharPriorityCaseInsensitive[(unsigned char)c2]);
         if (s)
             return s;
 
         // Remember case-sensitive result too
         if (resultIfEqual == 0 && c1 != c2)
-            resultIfEqual = cmp(kCharPriority[(uint8_t)c1], kCharPriority[(uint8_t)c2]);
+            resultIfEqual = cmp(kCharPriority[(unsigned char)c1], kCharPriority[(unsigned char)c2]);
     }
 
     if (resultIfEqual)
