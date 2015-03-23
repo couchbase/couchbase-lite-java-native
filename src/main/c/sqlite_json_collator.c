@@ -61,7 +61,7 @@ static void initializeCharPriorityMap(void) {
     // This table gives lowercase letters the same priority as uppercase:
     memcpy(kCharPriorityCaseInsensitive, kCharPriority, sizeof(kCharPriority));
     unsigned char c;
-    for (unsigned char c = 'a'; c <= 'z'; c++)
+    for (c = 'a'; c <= 'z'; c++)
         kCharPriorityCaseInsensitive[c] = kCharPriority[toupper(c)];
 }
 
