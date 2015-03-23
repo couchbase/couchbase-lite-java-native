@@ -54,11 +54,13 @@ static unsigned char kCharPriorityCaseInsensitive[128];
 static void initializeCharPriorityMap(void) {
     static const char* const kInverseMap = "\t\n\r `^_-,;:!?.'\"()[]{}@*/\\&#%+<=>|~$0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
     unsigned char priority = 1;
-    for (unsigned i=0; i<strlen(kInverseMap); i++)
+    unsigned int i;
+    for (i = 0; i < strlen(kInverseMap); i++)
         kCharPriority[(unsigned char)kInverseMap[i]] = priority++;
 
     // This table gives lowercase letters the same priority as uppercase:
     memcpy(kCharPriorityCaseInsensitive, kCharPriority, sizeof(kCharPriority));
+    unsigned char c;
     for (unsigned char c = 'a'; c <= 'z'; c++)
         kCharPriorityCaseInsensitive[c] = kCharPriority[toupper(c)];
 }
