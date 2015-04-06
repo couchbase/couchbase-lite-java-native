@@ -31,7 +31,7 @@ $ sudo apt-get install g++-multilib
 ```
 
 ### Windows
-* Visual VC++ 2010 or later is recommended. 
+* Visual Studio 2013 or later is required. 
 
 ### OSX
 * Command Line Tools for Xcode is required. You may download the Command Line Tools from the [Apple Developer](https://developer.apple.com/xcode/downloads) website.
