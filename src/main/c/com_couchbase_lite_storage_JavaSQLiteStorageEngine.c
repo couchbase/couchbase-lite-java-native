@@ -182,6 +182,11 @@ static sqlite3_stmt * _createStatementWithCString(JNIEnv * env, jobject this, sq
 		log_e(env, "Error binding args");
 		if (throwException) _throwException(env, "CreateStatement: Error binding args");
 
+		status = sqlite3_finalize(stmt);
+		if (status != SQLITE_OK) {
+			log_e(env, "CreateStatement: Error (%d) finalizing statement", status);
+		}
+
 		return NULL;
 	}
 
@@ -331,6 +336,11 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	if (status != SQLITE_ROW && status != SQLITE_DONE) {
 		log_e(env, "GetVersion: Error (%d) stepping statement: %s", status, sql);
 
+		status = sqlite3_finalize(stmt);
+		if (status != SQLITE_OK) {
+			log_e(env, "GetVersion: Error (%d) finalizing statement", status);
+		}
+
 		return 0;
 	}
 
@@ -350,10 +360,8 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	char sql[50];
 
 	sqlite3 * db = _fromPointer(handle);
-
 	if(!db) {
 		log_e(env, "SetVersion: Database not open");
-
 		return;
 	}
 
@@ -363,9 +371,7 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	int status = sqlite3_exec(db, sql, 0, 0, &error);
 	if (status != SQLITE_OK) {
 		log_e(env, "SetVersion: Error (%d) executing SQL: %s", status, error);
-
 		sqlite3_free(error);
-
 		return;
 	}
 }
@@ -374,10 +380,8 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	(JNIEnv * env, jobject this, jlong handle)
 {
 	sqlite3 * db = _fromPointer(handle);
-
 	if(!db) {
 		log_e(env, "BeginTransaction: Database not open");
-
 		return;
 	}
 
@@ -386,11 +390,8 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	int status = sqlite3_exec(db, sql, 0, 0, &error);
 	if (status != SQLITE_OK) {
 		log_e(env, "BeginTransaction: Error (%d) executing SQL: %s", status, error);
-
 		_throwException(env, "Execute: Error (%d) executing SQL: %s", status, error);
-
 		sqlite3_free(error);
-
 		return;
 	}
 }
@@ -399,10 +400,8 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	(JNIEnv * env, jobject this, jlong handle)
 {
 	sqlite3 * db = _fromPointer(handle);
-
 	if(!db) {
 		log_e(env, "Commit: Database not open");
-
 		return;
 	}
 
@@ -411,9 +410,7 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	int status = sqlite3_exec(db, sql, 0, 0, &error);
 	if (status != SQLITE_OK) {
 		log_e(env, "Commit: Error (%d) executing SQL: %s", status, error);
-
 		sqlite3_free(error);
-
 		return;
 	}
 }
@@ -422,10 +419,8 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	(JNIEnv * env, jobject this, jlong handle)
 {
 	sqlite3 * db = _fromPointer(handle);
-
 	if(!db) {
 		log_e(env, "Rollback: Database not open");
-
 		return;
 	}
 
@@ -434,9 +429,7 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	int status = sqlite3_exec(db, sql, 0, 0, &error);
 	if (status != SQLITE_OK) {
 		log_e(env, "Rollback: Error (%d) executing SQL: %s", status, error);
-
 		sqlite3_free(error);
-
 		return;
 	}
 }
@@ -445,11 +438,9 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	(JNIEnv * env, jobject this, jlong handle, jstring sql)
 {
 	sqlite3 * db = _fromPointer(handle);
-
 	if(!db) {
 		log_e(env, "Execute: Database not open");
 		_throwException(env, "Execute: Database not open");
-
 		return;
 	}
 
@@ -460,9 +451,7 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 	if (status != SQLITE_OK) {
 		log_e(env, "Execute: Error (%d) executing SQL: %s", status, error);
 		_throwException(env, "Execute: Error (%d) executing SQL: %s", status, error);
-
 		sqlite3_free(error);
-
 		return;
 	}
 }
@@ -483,6 +472,12 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 		log_e(env, "Execute: Error (%d) stepping statement: %s", status, sqlStr);
 		_throwException(env, "Execute: Error (%d) stepping statement: %s", status, sqlStr);
 		(*env)->ReleaseStringUTFChars(env, sql, sqlStr);
+
+		// Destroy A Prepared Statement Object
+		status = sqlite3_finalize(stmt);
+		if (status != SQLITE_OK) {
+			log_e(env, "Execute: Error (%d) finalizing statement", status);
+		}
 
 		return;
 	}
@@ -528,6 +523,12 @@ JNIEXPORT jlong JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_
 		log_e(env, "Insert: Error (%d) stepping statement, SQL: %s", status, sqlStr);
 		(*env)->ReleaseStringUTFChars(env, sql, sqlStr);
 
+		// Destroy A Prepared Statement Object
+		status = sqlite3_finalize(stmt);
+		if (status != SQLITE_OK) {
+			log_e(env, "Insert: Error (%d) finalizing statement", status);
+		}
+
 		return 0;
 	}
 
@@ -559,6 +560,12 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 		log_e(env, "Update: Error (%d) stepping statement: %s", status, sqlStr);
 		(*env)->ReleaseStringUTFChars(env, sql, sqlStr);
 
+		// Destroy A Prepared Statement Object
+		status = sqlite3_finalize(stmt);
+		if (status != SQLITE_OK) {
+			log_e(env, "Update: Error (%d) finalizing statement", status);
+		}
+
 		return 0;
 	}
 
@@ -586,15 +593,23 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine__
 
 	int status = sqlite3_step(stmt);
 	if (status != SQLITE_ROW && status != SQLITE_DONE) {
+
 		const char * sqlStr = (*env)->GetStringUTFChars(env, sql, 0);
 		log_e(env, "Delete: Error (%d) stepping statement: %s", status, sqlStr);
 		(*env)->ReleaseStringUTFChars(env, sql, sqlStr);
+
+		// Destroy A Prepared Statement Object
+		status = sqlite3_finalize(stmt);
+		if (status != SQLITE_OK) {
+			log_e(env, "Delete: Error (%d) finalizing statement", status);
+		}
 
 		return 0;
 	}
 
 	int changeCount = sqlite3_changes(db);
 
+	// Destroy A Prepared Statement Object
 	status = sqlite3_finalize(stmt);
 	if (status != SQLITE_OK) {
 		const char * sqlStr = (*env)->GetStringUTFChars(env, sql, 0);
@@ -689,7 +704,6 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_storage_JavaSQLiteStorageEngine_0
 	sqlite3_stmt * stmt = _fromPointer(handle);
 
 	int status = sqlite3_finalize(stmt);
-
 	if (status != SQLITE_OK) {
 		log_w(env, "Cursor.Close: Error (%d) finalizing statement: %s", status, sqlite3_sql(stmt));
 	}
