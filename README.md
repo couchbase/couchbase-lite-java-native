@@ -32,6 +32,7 @@ $ sudo apt-get install g++-multilib
 
 ### Windows
 * Visual Studio 2013 or later is required. 
+* Note: If you have problem with VS 2015, check [Build on Windows with Visual Studio 2015](https://github.com/couchbase/couchbase-lite-java-native/issues/23).
 
 ### OSX
 * Command Line Tools for Xcode is required. You may download the Command Line Tools from the [Apple Developer](https://developer.apple.com/xcode/downloads) website.
