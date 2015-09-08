@@ -45,38 +45,34 @@ model {
         gcc(Gcc)
         clang(Clang)
     }
-}
 
-sources {
-    native_library {
-        c(CSourceSet) {
-            source {
-                srcDir "src/main/c"
+    components {
+        CouchbaseLiteJavaNative(NativeLibrarySpec){
+            sources{
+                c{
+                    source {
+                        srcDir "src/main/c"
+                    }
+                    exportedHeaders {
+                        srcDir "src/main/include"
+                    }
+                }
+                binaries.withType(StaticLibraryBinary) { binary ->
+                    buildable = false
+                }
             }
-            exportedHeaders {
-                srcDir "src/main/include"
-            }
-        }
-    }
-}
-
-libraries {
-    native_library {
-        baseName "CouchbaseLiteJavaNative"
-    }
-
-    all {
-        binaries.all {
-            if (targetPlatform.operatingSystem.macOsX) {
-                cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
-                cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
-                linker.args '-framework', "JavaVM"
-            } else if (targetPlatform.operatingSystem.linux) {
-                cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
-                cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
-            } else if (targetPlatform.operatingSystem.windows) {
-                cCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
-                cCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+            binaries.all {
+                if (targetPlatform.operatingSystem.macOsX) {
+                    cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+                    cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
+                    linker.args '-framework', "JavaVM"
+                } else if (targetPlatform.operatingSystem.linux) {
+                    cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+                    cCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
+                } else if (targetPlatform.operatingSystem.windows) {
+                    cCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+                    cCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+                }
             }
         }
     }
@@ -89,7 +85,8 @@ binaries.withType(SharedLibraryBinary) { binary ->
 
     def builderTask = binary.tasks
 
-    jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") {
+    def arch = targetPlatform.architecture.name.replaceAll("-","_")
+    jar.into("native/${targetPlatform.operatingSystem.name}/${arch}") {
             from builderTask.outputFile
     }
 
