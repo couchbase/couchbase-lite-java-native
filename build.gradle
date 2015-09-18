@@ -48,6 +48,13 @@ model {
 
     components {
         CouchbaseLiteJavaNative(NativeLibrarySpec){
+            targetPlatform "osx_x86"
+            targetPlatform "osx_x86_64"
+            // targetPlatform "linux_x86" // gcc-multilib/g++-mutlilib does not work with clang, so they are not installed this machine.
+            targetPlatform "linux_x86_64"
+            targetPlatform "linux_amd64"
+            targetPlatform "windows_x86"
+            targetPlatform "windows_x86_64"
             sources{
                 c{
                     source {
@@ -84,10 +91,14 @@ binaries.withType(SharedLibraryBinary) { binary ->
     }
 
     def builderTask = binary.tasks
-
-    def arch = targetPlatform.architecture.name.replaceAll("-","_")
-    jar.into("native/${targetPlatform.operatingSystem.name}/${arch}") {
-            from builderTask.outputFile
+    def platformName = targetPlatform.name
+    def os = targetPlatform.operatingSystem.name
+    def arch = targetPlatform.architecture.name.replaceAll("-", "_")
+    if (platformName == "windows_amd64" || platformName == "linux_amd64") {
+        arch = "amd64"
+    }
+    jar.into("native/${os}/${arch}") {
+        from builderTask.outputFile
     }
 
     jar.dependsOn builderTask
