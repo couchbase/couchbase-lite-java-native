@@ -1,0 +1,37 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "6A446BAAF103A8D635590B7EEA14F05A1D61AC21",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "0E2A7142009CB30C4EDD3845D281076C257A21C0" : 0,
+    "2D08296CC194817897B7548D505C8DF500F4A69F" : 0,
+    "6A446BAAF103A8D635590B7EEA14F05A1D61AC21" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "D9D8E428-480F-4E3B-9A64-F8642BB99523",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "0E2A7142009CB30C4EDD3845D281076C257A21C0" : "couchbase-lite-libsqlcipher\/vendor\/couchbase-lite-libcrypto\/",
+    "2D08296CC194817897B7548D505C8DF500F4A69F" : "..",
+    "6A446BAAF103A8D635590B7EEA14F05A1D61AC21" : "couchbase-lite-libsqlcipher\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "libsqlcipher",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "src\/xcode\/libsqlcipher\/libsqlcipher.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/couchbaselabs\/couchbase-lite-libcrypto",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "0E2A7142009CB30C4EDD3845D281076C257A21C0"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/couchbaselabs\/couchbase-lite-java-sqlcipher.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "2D08296CC194817897B7548D505C8DF500F4A69F"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/couchbaselabs\/couchbase-lite-libsqlcipher.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "6A446BAAF103A8D635590B7EEA14F05A1D61AC21"
+    }
+  ]
+}

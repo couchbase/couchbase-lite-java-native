@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "self:/Users/pasin/Git/couchbase/couchbase-lite-java-native/vendor/sqlite/src/xcode/libsqlite/libsqlite.xcodeproj">
+   </FileRef>
+</Workspace>
