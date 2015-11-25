@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "CACF39EAE444067640F7941D9A331731A5E3B190",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "CACF39EAE444067640F7941D9A331731A5E3B190" : 0,
+    "763FB1CC6A6504012FDA7C07CF9D7E690E7AB676" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "9898CEC4-AE1F-471F-9D4F-EB43ED624BBB",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "CACF39EAE444067640F7941D9A331731A5E3B190" : "couchbase-lite-java-native\/",
+    "763FB1CC6A6504012FDA7C07CF9D7E690E7AB676" : ".."
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "libsqlite",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "vendor\/sqlite\/src\/xcode\/libsqlite\/libsqlite.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/couchbase\/couchbase-lite-android",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "763FB1CC6A6504012FDA7C07CF9D7E690E7AB676"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/couchbase\/couchbase-lite-java-native",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "CACF39EAE444067640F7941D9A331731A5E3B190"
+    }
+  ]
+}
