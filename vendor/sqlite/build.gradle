@@ -1,0 +1,135 @@
+apply plugin: 'c'
+apply plugin: 'java'
+
+model {
+    platforms {
+        osx_x86 {
+            architecture "x86"
+            operatingSystem "osx"
+        }
+        osx_x86_64 {
+            architecture "x86_64"
+            operatingSystem "osx"
+        }
+        linux_x86 {
+            architecture "x86"
+            operatingSystem "linux"
+        }
+        linux_x86_64 {
+            architecture "x86_64"
+            operatingSystem "linux"
+        }
+        linux_amd64 {
+            architecture "amd64"
+            operatingSystem "linux"
+        }
+        windows_x86 {
+            architecture "x86"
+            operatingSystem "windows"
+        }
+        windows_x86_64 {
+            architecture "x86_64"
+            operatingSystem "windows"
+        }
+        windows_amd64 {
+            architecture "amd64"
+            operatingSystem "windows"
+        }
+    }
+
+    toolChains {
+        visualCpp(VisualCpp)
+        gcc(Gcc)
+        clang(Clang)
+    }
+
+    components {
+        sqlite3(NativeLibrarySpec) {
+            targetPlatform "osx_x86"
+            targetPlatform "osx_x86_64"
+            targetPlatform "linux_x86"
+            targetPlatform "linux_x86_64"
+            targetPlatform "linux_amd64"
+            targetPlatform "windows_x86"
+            targetPlatform "windows_x86_64"
+            targetPlatform "windows_amd64"
+            sources {
+                c {
+                    source {
+                        srcDir "src/c"
+                    }
+                    exportedHeaders {
+                        srcDir "src/headers"
+                    }
+                }
+            }
+            binaries.all {
+                def platformName = targetPlatform.name
+                def arch = targetPlatform.architecture.name.replaceAll("-", "_")
+                if (platformName == "windows_amd64" || platformName == "linux_amd64") {
+                    arch = "amd64"
+                }
+
+                cCompiler.args "-DSQLITE_THREADSAFE=2"
+                cCompiler.args "-DSQLITE_TEMP_STORE=2"
+                cCompiler.args "-DSQLITE_ENABLE_FTS3"
+                cCompiler.args "-DSQLITE_ENABLE_FTS3_PARENTHESIS"
+                cCompiler.args "-DSQLITE_ENABLE_FTS4"
+                cCompiler.args "-DSQLITE_ENABLE_RTREE"
+                cCompiler.args "-fPIC"
+
+                if (toolChain in Gcc) {
+                    cCompiler.args "-ffunction-sections", "-fdata-sections", "-fomit-frame-pointer"
+                    linker.args "-Wl,--no-undefined"
+                    linker.args "-lpthread", "-ldl" 
+                }
+                
+                if (toolChain in VisualCpp) {
+                    linker.args "/DEF:src\\def\\sqlite3.def"
+                }
+            }
+        }
+    }
+}
+
+jar.baseName = "sqlite"
+
+binaries.withType(SharedLibraryBinary) { binary ->
+    if (!buildable) {
+        return
+    }
+
+    def builderTask = binary.tasks
+    def platformName = targetPlatform.name
+    def os = targetPlatform.operatingSystem.name
+    def arch = targetPlatform.architecture.name.replaceAll("-", "_")
+    if (platformName == "windows_amd64" || platformName == "linux_amd64") {
+        arch = "amd64"
+    }
+
+    jar.into("libs/${os}/${arch}") {
+        from builderTask.outputFile
+    }
+
+    jar.dependsOn builderTask
+}
+
+binaries.withType(StaticLibraryBinary) { binary ->
+    if (!buildable) {
+        return
+    }
+
+    def builderTask = binary.tasks
+    def platformName = targetPlatform.name
+    def os = targetPlatform.operatingSystem.name
+    def arch = targetPlatform.architecture.name.replaceAll("-", "_")
+    if (platformName == "windows_amd64" || platformName == "linux_amd64") {
+        arch = "amd64"
+    }
+
+    jar.into("libs/${os}/${arch}") {
+        from builderTask.outputFile
+    }
+
+    jar.dependsOn builderTask
+}
