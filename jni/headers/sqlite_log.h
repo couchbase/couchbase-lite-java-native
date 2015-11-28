@@ -14,7 +14,7 @@
 #define SQLITE_LOG_H
 
 #ifdef DEBUG
-static bool shouldLog = false;
+static bool shouldLog = true;
 #else
 static bool shouldLog = false;
 #endif

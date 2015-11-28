@@ -208,11 +208,10 @@ static char convertEscape(const char **in) {
             const char* digits = *in + 1;
             *in += 4;
             int uc = (digitToInt(digits[0]) << 12) | (digitToInt(digits[1]) << 8) |
-            (digitToInt(digits[2]) <<  4) | (digitToInt(digits[3]));
+                     (digitToInt(digits[2]) <<  4) | (digitToInt(digits[3]));
             
-            if (uc > 127) {
-                // TODO: How/should we log unexpected characters?
-            }
+            if (uc > 127)
+                return 0xFF; // This function doesn't support non-ASCII characters
             
             return (char)uc;
         }
@@ -707,10 +706,8 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_storage_SQLiteJsonCollator_native
 JNIEXPORT jchar JNICALL Java_com_couchbase_lite_storage_SQLiteJsonCollator_nativeTestEscape
 (JNIEnv* env, jclass clazz, jstring string) {
     const char* cstring = env->GetStringUTFChars(string, NULL);
-    
-    char result = convertEscape(&cstring);
-    
+    const char* nucstring = cstring;
+    char result = convertEscape(&nucstring);
     env->ReleaseStringUTFChars(string, cstring);
-    
     return result;
 }
