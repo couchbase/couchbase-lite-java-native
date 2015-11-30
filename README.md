@@ -4,7 +4,7 @@ This is a shared native SQLite library used for Couchbase Lite [Android](https:/
 
 There are three SQLite configurations.
 
-1. sqlite-system - No sqlite libray provided, use system sqlite installed on the device or machine
+1. sqlite-system - No sqlite library provided, use system sqlite installed on the device or machine
 2. sqlite        - bundled with a prebuilt sqlite library
 3. sqlcipher     - bundled with a prebuilt sqlcipher library for encryption
 
