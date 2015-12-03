@@ -24,9 +24,9 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/$(ICUUC_PATH)/include/common
 LOCAL_SRC_FILES := $(ICUUC_PATH)/libs/$(TARGET_ARCH_ABI)/libicuuc_static.a
 include $(PREBUILT_STATIC_LIBRARY)
 
-### Build CBLJavaNativeSQLCipher ###
+### Build cbljavasqlcipher ###
 include $(CLEAR_VARS)
-LOCAL_MODULE := CBLJavaNativeSQLCipher
+LOCAL_MODULE := cbljavasqlcipher
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../../jni/headers
 LOCAL_SRC_FILES := ../../../../jni/source/com_couchbase_lite_database_sqlite_SQLiteDatabase.cpp \
                    ../../../../jni/source/com_couchbase_lite_database_sqlite_SQLiteConnection.cpp \
@@ -44,9 +44,9 @@ LOCAL_SHARED_LIBRARIES := libsqlcipher
 LOCAL_LDLIBS := -llog -ldl
 include $(BUILD_SHARED_LIBRARY)
 
-### Build CBLJavaNativeKey ###
+### Build cbljavakey ###
 include $(CLEAR_VARS)
-LOCAL_MODULE := CBLJavaNativeKey
+LOCAL_MODULE := cbljavakey
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../../jni/headers
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../../../vendor/sqlcipher/vendor/couchbase-lite-libcrypto/libs/include
 LOCAL_SRC_FILES := ../../../../jni/source/com_couchbase_lite_database_security_Key.cpp

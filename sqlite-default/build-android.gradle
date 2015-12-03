@@ -60,7 +60,7 @@ android {
         variant.outputs.each { output ->
             if (output.outputFile != null && output.outputFile.name.endsWith('.aar')) {
                 def file = output.outputFile
-                def fileName = "couchbase-lite-java-native.aar"
+                def fileName = "couchbase-lite-android-sqlite-default.aar"
                 output.outputFile = new File(file.parent, fileName)
             }
         }
@@ -78,7 +78,7 @@ dependencies {
 task createMavenDirectory(type: Exec) {
     ext {
         uploadUser = System.getenv("MAVEN_UPLOAD_USERNAME") + ":" + System.getenv("MAVEN_UPLOAD_PASSWORD")
-        mkcolPath  = System.getenv("MAVEN_UPLOAD_REPO_URL") + "com/couchbase/lite/couchbase-lite-java-native-sqlite-system" + version + "/"
+        mkcolPath  = System.getenv("MAVEN_UPLOAD_REPO_URL") + "com/couchbase/lite/couchbase-lite-android-sqlite-default" + version + "/"
     }
     commandLine "curl", "--user", uploadUser, "-X", "MKCOL", mkcolPath
 }
@@ -100,7 +100,7 @@ uploadArchives {
             }
             pom.version = version
             pom.groupId = 'com.couchbase.lite'
-            pom.artifactId = 'couchbase-lite-java-native-sqlite-system'
+            pom.artifactId = 'couchbase-lite-android-sqlite-default'
             pom.project {
                 licenses {
                     license {

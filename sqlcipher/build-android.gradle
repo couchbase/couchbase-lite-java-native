@@ -74,7 +74,7 @@ dependencies {
 task createMavenDirectory(type: Exec) {
     ext {
         uploadUser = System.getenv("MAVEN_UPLOAD_USERNAME") + ":" + System.getenv("MAVEN_UPLOAD_PASSWORD")
-        mkcolPath  = System.getenv("MAVEN_UPLOAD_REPO_URL") + "com/couchbase/lite/couchbase-lite-java-native-sqlcipher/" + version + "/"
+        mkcolPath  = System.getenv("MAVEN_UPLOAD_REPO_URL") + "com/couchbase/lite/couchbase-lite-android-sqlcipher/" + version + "/"
     }
     commandLine "curl", "--user", uploadUser, "-X", "MKCOL", mkcolPath
 }
@@ -96,7 +96,7 @@ uploadArchives {
             }
             pom.version = version
             pom.groupId = 'com.couchbase.lite'
-            pom.artifactId = 'couchbase-lite-java-native-sqlcipher'
+            pom.artifactId = 'couchbase-lite-android-sqlcipher'
             pom.project {
                 licenses {
                     license {
