@@ -79,7 +79,7 @@ model {
     }
 
     components {
-        CBLJavaNativeSQLite(NativeLibrarySpec) {
+        cbljavasqlitecustom(NativeLibrarySpec) {
             targetPlatform "osx_x86"
             targetPlatform "osx_x86_64"
             targetPlatform "linux_x86"
@@ -126,7 +126,7 @@ model {
     }
 }
 
-jar.baseName = "couchbase-lite-java-native-sqlite"
+jar.baseName = "couchbase-lite-java-sqlite-custom"
 
 binaries.withType(SharedLibraryBinary) { binary ->
     if (!buildable) {
@@ -205,7 +205,7 @@ artifacts {
 task createMavenDirectory(type: Exec) {
     ext {
         uploadUser = System.getenv("MAVEN_UPLOAD_USERNAME") + ":" + System.getenv("MAVEN_UPLOAD_PASSWORD")
-        mkcolPath  = System.getenv("MAVEN_UPLOAD_REPO_URL") + "com/couchbase/lite/couchbase-lite-java-native-sqlite-desktop/" + version + "/"
+        mkcolPath  = System.getenv("MAVEN_UPLOAD_REPO_URL") + "com/couchbase/lite/couchbase-lite-java-sqlite-custom/" + version + "/"
     }
     commandLine "curl", "--user", uploadUser, "-X", "MKCOL", mkcolPath
 }
@@ -227,7 +227,7 @@ uploadArchives {
             }
             pom.version = version
             pom.groupId = 'com.couchbase.lite'
-            pom.artifactId = 'couchbase-lite-java-native-sqlite-desktop'
+            pom.artifactId = 'couchbase-lite-java-sqlite-custom'
             pom.project {
                 licenses {
                     license {
