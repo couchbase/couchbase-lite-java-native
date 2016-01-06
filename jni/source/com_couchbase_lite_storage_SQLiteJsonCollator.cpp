@@ -522,9 +522,10 @@ static void registerCollator(sqlite3* db, const char* locale, const char* icuDat
     
     Collator* collator = NULL;
     if (icuDataPath != NULL) {
+#ifdef ANDROID
         // Set data path:
         setenv("CBL_ICU_PREFIX", icuDataPath, 1);
-        
+#endif
         // Create ICU Collator:
         collator = createCollator(locale);
     } else
