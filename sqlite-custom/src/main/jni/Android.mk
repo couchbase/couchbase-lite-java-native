@@ -5,7 +5,7 @@ include $(CLEAR_VARS)
 ICUUC_PATH := ../../../../vendor/icu4c-android
 LOCAL_MODULE := libicuuc
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/$(ICUUC_PATH)/include/common
-LOCAL_SRC_FILES := $(ICUUC_PATH)/libs/$(TARGET_ARCH_ABI)/libicuuc_static.a
+LOCAL_SRC_FILES := $(ICUUC_PATH)/libs/android/$(TARGET_ARCH_ABI)/libicuuc_static.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 ### libicui18n static library ###
@@ -13,7 +13,7 @@ include $(CLEAR_VARS)
 ICUI18N_PATH := ../../../../vendor/icu4c-android
 LOCAL_MODULE := libicui18n
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/$(ICUI18N_PATH)/include/i18n
-LOCAL_SRC_FILES := $(ICUI18N_PATH)/libs/$(TARGET_ARCH_ABI)/libicui18n_static.a
+LOCAL_SRC_FILES := $(ICUI18N_PATH)/libs/android/$(TARGET_ARCH_ABI)/libicui18n_static.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 ### libsqlite3 shared library ###
