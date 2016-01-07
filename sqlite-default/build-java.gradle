@@ -77,6 +77,54 @@ model {
                     sharedLibraryFile = file(libPath)
                 }
             }
+            libicuuc{
+                headers.srcDir "../vendor/icu4c-android/include/common"
+                headers.srcDir "../vendor/icu4c-android/include/i18n"
+                binaries.withType(StaticLibraryBinary) {
+                    def platformName = targetPlatform.name
+                    def os = targetPlatform.operatingSystem;
+                    def osName = os.name
+                    def arch = targetPlatform.architecture.name.replaceAll("-", "_")
+                    if (platformName == "windows_amd64" || platformName == "linux_amd64") {
+                        arch = "amd64"
+                    }
+                    def libName = os.windows ? "sicuuc.lib" : "libicuuc.a"
+                    def libPath = "../vendor/icu4c-android/libs/${osName}/${arch}/${libName}"
+                    staticLibraryFile = file(libPath)
+                }            
+            }
+            libicui18n{
+                headers.srcDir "../vendor/icu4c-android/include/common"
+                headers.srcDir "../vendor/icu4c-android/include/i18n"
+                binaries.withType(StaticLibraryBinary) {
+                    def platformName = targetPlatform.name
+                    def os = targetPlatform.operatingSystem;
+                    def osName = os.name
+                    def arch = targetPlatform.architecture.name.replaceAll("-", "_")
+                    if (platformName == "windows_amd64" || platformName == "linux_amd64") {
+                        arch = "amd64"
+                    }
+                    def libName = os.windows ? "sicuin.lib" : "libicui18n.a"
+                    def libPath = "../vendor/icu4c-android/libs/${osName}/${arch}/${libName}"
+                    staticLibraryFile = file(libPath)
+                }            
+            }
+            libicudata{
+                headers.srcDir "../vendor/icu4c-android/include/common"
+                headers.srcDir "../vendor/icu4c-android/include/i18n"
+                binaries.withType(StaticLibraryBinary) {
+                    def platformName = targetPlatform.name
+                    def os = targetPlatform.operatingSystem;
+                    def osName = os.name
+                    def arch = targetPlatform.architecture.name.replaceAll("-", "_")
+                    if (platformName == "windows_amd64" || platformName == "linux_amd64") {
+                        arch = "amd64"
+                    }
+                    def libName = os.windows ? "sicudt.lib" : "libicudata.a"
+                    def libPath = "../vendor/icu4c-android/libs/${osName}/${arch}/${libName}"
+                    staticLibraryFile = file(libPath)
+                }            
+            }
         }
     }
 
@@ -97,15 +145,19 @@ model {
                         exclude "**/com_couchbase_lite_database_security_Key.cpp"
                     }
                     exportedHeaders {
-                        srcDir "../jni/headers"
+                        srcDir "../jni/headers"  
                     }
                     lib library: 'libsqlite3', linkage: 'shared'
+                    lib library: 'libicui18n', linkage: 'static'
+                    lib library: 'libicuuc',   linkage: 'static'
+                    lib library: 'libicudata', linkage: 'static'
                 }
             }
             binaries.withType(StaticLibraryBinary) { binary ->
                 buildable = false
             }
             binaries.all {
+                cppCompiler.args '-DUSE_ICU4C_UNICODE_COMPARE -DU_STATIC_IMPLEMENTATION'
                 if (targetPlatform.operatingSystem.macOsX) {
                     cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
                     cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
