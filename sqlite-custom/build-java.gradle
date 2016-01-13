@@ -193,6 +193,7 @@ binaries.withType(SharedLibraryBinary) { binary ->
         arch = "amd64"
     }
 
+    // Postprocessor task for OSX:
     def binaryName = builderTask.outputFile.get(0).getName();
     def postprocessTask = "postprocess_${platformName}_${binaryName}"
     task "${postprocessTask}"(type: Exec, dependsOn: builderTask) {
@@ -219,7 +220,12 @@ binaries.withType(SharedLibraryBinary) { binary ->
         }
         from libPath
     }
-    jar.dependsOn "${postprocessTask}"
+
+    if (os == "osx") {
+        jar.dependsOn "${postprocessTask}"
+    } else {
+        jar.dependsOn builderTask
+    }
 }
 
 ////////////////////////////////////////////
