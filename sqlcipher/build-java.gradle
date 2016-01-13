@@ -161,9 +161,9 @@ model {
                 cpp {
                     source {
                         srcDir "../jni/source"
-                        include "com_couchbase_lite_database_sqlite_SQLiteDatabase.cpp",
-                                "com_couchbase_lite_database_sqlite_SQLiteConnection.cpp",
-                                "com_couchbase_lite_database_sqlite_SQLiteQueryCursor.cpp",
+                        include "com_couchbase_lite_internal_database_sqlite_SQLiteDatabase.cpp",
+                                "com_couchbase_lite_internal_database_sqlite_SQLiteConnection.cpp",
+                                "com_couchbase_lite_internal_database_sqlite_SQLiteQueryCursor.cpp",
                                 "com_couchbase_lite_storage_SQLiteJsonCollator.cpp",
                                 "com_couchbase_lite_storage_SQLiteRevCollator.cpp",
                                 "sqlite_common.cpp"
@@ -224,7 +224,7 @@ model {
                 cpp {
                     source {
                         srcDir "../jni/source"
-                        include "com_couchbase_lite_database_security_Key.cpp"
+                        include "com_couchbase_lite_internal_database_security_Key.cpp"
                     }
                     exportedHeaders {
                         srcDirs "../jni/headers",

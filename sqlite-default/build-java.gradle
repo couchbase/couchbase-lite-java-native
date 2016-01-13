@@ -142,7 +142,7 @@ model {
                 cpp {
                     source {
                         srcDir "../jni/source"
-                        exclude "**/com_couchbase_lite_database_security_Key.cpp"
+                        exclude "**/com_couchbase_lite_internal_database_security_Key.cpp"
                     }
                     exportedHeaders {
                         srcDir "../jni/headers"  

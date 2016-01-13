@@ -63,60 +63,60 @@ void throw_sqlite3_exception(JNIEnv* env, int errcode,
     const char* exceptionClass;
     switch (errcode & 0xff) { /* mask off extended error code */
         case SQLITE_IOERR:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteDiskIOException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteDiskIOException";
             break;
         case SQLITE_CORRUPT:
         case SQLITE_NOTADB: // treat "unsupported file format" error as corruption also
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteDatabaseCorruptException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteDatabaseCorruptException";
             break;
         case SQLITE_CONSTRAINT:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteConstraintException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteConstraintException";
             break;
         case SQLITE_ABORT:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteAbortException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteAbortException";
             break;
         case SQLITE_DONE:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteDoneException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteDoneException";
             sqlite3Message = NULL; // SQLite error message is irrelevant in this case
             break;
         case SQLITE_FULL:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteFullException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteFullException";
             break;
         case SQLITE_MISUSE:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteMisuseException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteMisuseException";
             break;
         case SQLITE_PERM:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteAccessPermException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteAccessPermException";
             break;
         case SQLITE_BUSY:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteDatabaseLockedException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteDatabaseLockedException";
             break;
         case SQLITE_LOCKED:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteTableLockedException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteTableLockedException";
             break;
         case SQLITE_READONLY:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteReadOnlyDatabaseException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteReadOnlyDatabaseException";
             break;
         case SQLITE_CANTOPEN:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteCantOpenDatabaseException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteCantOpenDatabaseException";
             break;
         case SQLITE_TOOBIG:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteBlobTooBigException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteBlobTooBigException";
             break;
         case SQLITE_RANGE:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteBindOrColumnIndexOutOfRangeException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteBindOrColumnIndexOutOfRangeException";
             break;
         case SQLITE_NOMEM:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteOutOfMemoryException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteOutOfMemoryException";
             break;
         case SQLITE_MISMATCH:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteDatatypeMismatchException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteDatatypeMismatchException";
             break;
         case SQLITE_INTERRUPT:
-            exceptionClass = "com/couchbase/lite/database/OperationCanceledException";
+            exceptionClass = "com/couchbase/lite/internal/database/OperationCanceledException";
             break;
         default:
-            exceptionClass = "com/couchbase/lite/database/sqlite/exception/SQLiteException";
+            exceptionClass = "com/couchbase/lite/internal/database/sqlite/exception/SQLiteException";
             break;
     }
 

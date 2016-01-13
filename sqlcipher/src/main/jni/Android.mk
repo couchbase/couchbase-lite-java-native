@@ -28,9 +28,9 @@ include $(PREBUILT_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := cbljavasqlcipher
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../../jni/headers
-LOCAL_SRC_FILES := ../../../../jni/source/com_couchbase_lite_database_sqlite_SQLiteDatabase.cpp \
-                   ../../../../jni/source/com_couchbase_lite_database_sqlite_SQLiteConnection.cpp \
-                   ../../../../jni/source/com_couchbase_lite_database_sqlite_SQLiteQueryCursor.cpp \
+LOCAL_SRC_FILES := ../../../../jni/source/com_couchbase_lite_internal_database_sqlite_SQLiteDatabase.cpp \
+                   ../../../../jni/source/com_couchbase_lite_internal_database_sqlite_SQLiteConnection.cpp \
+                   ../../../../jni/source/com_couchbase_lite_internal_database_sqlite_SQLiteQueryCursor.cpp \
                    ../../../../jni/source/com_couchbase_lite_storage_SQLiteJsonCollator.cpp \
                    ../../../../jni/source/com_couchbase_lite_storage_SQLiteRevCollator.cpp \
                    ../../../../jni/source/sqlite_common.cpp
@@ -49,7 +49,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := cbljavakey
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../../jni/headers
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../../../vendor/sqlcipher/vendor/couchbase-lite-libcrypto/libs/include
-LOCAL_SRC_FILES := ../../../../jni/source/com_couchbase_lite_database_security_Key.cpp
+LOCAL_SRC_FILES := ../../../../jni/source/com_couchbase_lite_internal_database_security_Key.cpp
 LOCAL_CPPFLAGS := -DANDROID_LOG
 LOCAL_SHARED_LIBRARIES := libsqlcipher
 LOCAL_LDLIBS := -llog -ldl
