@@ -70,12 +70,14 @@ model {
                     arch = "amd64"
                 }
 
-                cCompiler.args "-DSQLITE_THREADSAFE=2"
-                cCompiler.args "-DSQLITE_TEMP_STORE=2"
+                cCompiler.args "-DSQLITE_ENABLE_COLUMN_METADATA"
                 cCompiler.args "-DSQLITE_ENABLE_FTS3"
                 cCompiler.args "-DSQLITE_ENABLE_FTS3_PARENTHESIS"
                 cCompiler.args "-DSQLITE_ENABLE_FTS4"
                 cCompiler.args "-DSQLITE_ENABLE_RTREE"
+                cCompiler.args "-DSQLITE_POWERSAFE_OVERWRITE=1"
+                cCompiler.args "-DSQLITE_THREADSAFE=2"
+                cCompiler.args "-DSQLITE_TEMP_STORE=2"
                 cCompiler.args "-fPIC"
 
                 if (toolChain in Gcc) {
