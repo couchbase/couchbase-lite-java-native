@@ -17,7 +17,7 @@
 
 #include "sqlite3.h"
 
-#include "com_couchbase_lite_database_sqlite_SQLiteConnection.h"
+#include "com_couchbase_lite_internal_database_sqlite_SQLiteConnection.h"
 #include "sqlite_connection.h"
 #include "sqlite_common.h"
 
@@ -67,7 +67,7 @@ static char* lowercase(char* str) {
     return str;
 }
 
-JNIEXPORT jlong JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeOpen
+JNIEXPORT jlong JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeOpen
 (JNIEnv* env, jclass clazz, jstring pathStr, jint openFlags, jstring labelStr, jboolean enableTrace, jboolean enableProfile) {
     int sqliteFlags;
     if (openFlags & SQLiteConnection::CREATE_IF_NECESSARY) {
@@ -125,7 +125,7 @@ JNIEXPORT jlong JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection
     return reinterpret_cast<jlong>(connection);
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeClose
+JNIEXPORT void JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeClose
 (JNIEnv* env, jclass clazz, jlong connectionPtr) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     
@@ -145,7 +145,7 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_
     }
 }
 
-JNIEXPORT jlong JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativePrepareStatement
+JNIEXPORT jlong JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativePrepareStatement
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jstring sqlString) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     
@@ -176,7 +176,7 @@ JNIEXPORT jlong JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection
     return reinterpret_cast<jlong>(statement);
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeFinalizeStatement
+JNIEXPORT void JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeFinalizeStatement
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -188,28 +188,28 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_
     sqlite3_finalize(statement);
 }
 
-JNIEXPORT jint JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeGetParameterCount
+JNIEXPORT jint JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeGetParameterCount
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr) {
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     
     return sqlite3_bind_parameter_count(statement);
 }
 
-JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeIsReadOnly
+JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeIsReadOnly
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr) {
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     
     return sqlite3_stmt_readonly(statement) != 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeGetColumnCount
+JNIEXPORT jint JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeGetColumnCount
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr) {
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     
     return sqlite3_column_count(statement);
 }
 
-JNIEXPORT jstring JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeGetColumnName
+JNIEXPORT jstring JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeGetColumnName
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr, jint index) {
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     
@@ -224,7 +224,7 @@ JNIEXPORT jstring JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnecti
     return NULL;
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeBindNull
+JNIEXPORT void JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeBindNull
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr, jint index) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -235,7 +235,7 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_
     }
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeBindLong
+JNIEXPORT void JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeBindLong
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr, jint index, jlong value) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -246,7 +246,7 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_
     }
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeBindDouble
+JNIEXPORT void JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeBindDouble
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr, jint index, jdouble value) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -257,7 +257,7 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_
     }
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeBindString
+JNIEXPORT void JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeBindString
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr, jint index, jstring valueString) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -272,7 +272,7 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_
     }
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeBindBlob
+JNIEXPORT void JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeBindBlob
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr, jint index, jbyteArray valueArray) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -285,7 +285,7 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_
         throw_sqlite3_exception(env, connection->db, NULL);
     }}
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeResetStatementAndClearBindings
+JNIEXPORT void JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeResetStatementAndClearBindings
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -328,7 +328,7 @@ static int executeOneRowQuery(JNIEnv* env, SQLiteConnection* connection, sqlite3
     return err;
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeExecute
+JNIEXPORT void JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeExecute
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -336,7 +336,7 @@ JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_
     executeNonQuery(env, connection, statement);
 }
 
-JNIEXPORT jlong JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeExecuteForLong
+JNIEXPORT jlong JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeExecuteForLong
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -348,7 +348,7 @@ JNIEXPORT jlong JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection
     return -1;
 }
 
-JNIEXPORT jstring JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeExecuteForString
+JNIEXPORT jstring JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeExecuteForString
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -364,7 +364,7 @@ JNIEXPORT jstring JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnecti
     return NULL;
 }
 
-JNIEXPORT jint JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeExecuteForChangedRowCount
+JNIEXPORT jint JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeExecuteForChangedRowCount
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -373,7 +373,7 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_
     return err == SQLITE_DONE ? sqlite3_changes(connection->db) : -1;
 }
 
-JNIEXPORT jlong JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeExecuteForLastInsertedRowId
+JNIEXPORT jlong JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeExecuteForLastInsertedRowId
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jlong statementPtr) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
@@ -383,7 +383,7 @@ JNIEXPORT jlong JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection
     ? sqlite3_last_insert_rowid(connection->db) : -1;
 }
 
-JNIEXPORT jint JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeGetDbLookaside
+JNIEXPORT jint JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeGetDbLookaside
 (JNIEnv* env, jclass clazz, jlong connectionPtr) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     
@@ -393,13 +393,13 @@ JNIEXPORT jint JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_
     return cur;
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeCancel
+JNIEXPORT void JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeCancel
 (JNIEnv* env, jclass clazz, jlong connectionPtr) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     connection->canceled = true;
 }
 
-JNIEXPORT void JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteConnection_nativeResetCancel
+JNIEXPORT void JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteConnection_nativeResetCancel
 (JNIEnv* env, jclass clazz, jlong connectionPtr, jboolean cancelable) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
     connection->canceled = false;

@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 
-#include "com_couchbase_lite_database_security_Key.h"
+#include "com_couchbase_lite_internal_database_security_Key.h"
 
 #if !defined (CBL_KEY_CRYPTO_CC) \
  && !defined (CBL_KEY_CRYPTO_OPENSSL)
@@ -69,7 +69,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_couchbase_lite_database_security_Key_nativ
 #include "openssl/evp.h"
 #include "openssl/sha.h"
 
-JNIEXPORT jbyteArray JNICALL Java_com_couchbase_lite_database_security_Key_nativeDerivePBKDF2SHA256Key
+JNIEXPORT jbyteArray JNICALL Java_com_couchbase_lite_internal_database_security_Key_nativeDerivePBKDF2SHA256Key
   (JNIEnv *env, jclass clazz, jstring password, jbyteArray salt, jint rounds) {
     if (password == NULL || salt == NULL)
       return NULL;

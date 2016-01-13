@@ -6,10 +6,10 @@ out/
 obj/
 
 # platform specific build files
-sqlite/src/main/libs/
-sqlite/src/main/obj/
-sqlite-system/src/main/libs/
-sqlite-system/src/main/obj/
+sqlite-custom/src/main/libs/
+sqlite-custom/src/main/obj/
+sqlite-default/src/main/libs/
+sqlite-default/src/main/obj/
 sqlcipher/src/main/libs/
 sqlcipher/src/main/obj/
 

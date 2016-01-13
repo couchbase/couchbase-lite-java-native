@@ -17,9 +17,9 @@
 #endif
 
 #include "sqlite_log.h"
-#include "com_couchbase_lite_database_sqlite_SQLiteDatabase.h"
+#include "com_couchbase_lite_internal_database_sqlite_SQLiteDatabase.h"
 
-JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteDatabase_nativeSupportEncryption
+JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteDatabase_nativeSupportEncryption
 (JNIEnv* env, jclass clazz) {
 #ifdef __ANDROID__
 // PROBLEM: Not every system's SQLite on Android is built with sqlite3_compileoption_used() function included.

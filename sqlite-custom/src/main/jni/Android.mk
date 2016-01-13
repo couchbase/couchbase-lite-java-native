@@ -28,9 +28,9 @@ include $(PREBUILT_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := cbljavasqlitecustom
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../../jni/headers
-LOCAL_SRC_FILES := ../../../../jni/source/com_couchbase_lite_database_sqlite_SQLiteDatabase.cpp \
-                   ../../../../jni/source/com_couchbase_lite_database_sqlite_SQLiteConnection.cpp \
-                   ../../../../jni/source/com_couchbase_lite_database_sqlite_SQLiteQueryCursor.cpp \
+LOCAL_SRC_FILES := ../../../../jni/source/com_couchbase_lite_internal_database_sqlite_SQLiteDatabase.cpp \
+                   ../../../../jni/source/com_couchbase_lite_internal_database_sqlite_SQLiteConnection.cpp \
+                   ../../../../jni/source/com_couchbase_lite_internal_database_sqlite_SQLiteQueryCursor.cpp \
                    ../../../../jni/source/com_couchbase_lite_storage_SQLiteJsonCollator.cpp \
                    ../../../../jni/source/com_couchbase_lite_storage_SQLiteRevCollator.cpp \
                    ../../../../jni/source/sqlite_common.cpp

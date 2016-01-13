@@ -14,11 +14,11 @@
 
 #include "sqlite3.h"
 
-#include "com_couchbase_lite_database_sqlite_SQLiteQueryCursor.h"
+#include "com_couchbase_lite_internal_database_sqlite_SQLiteQueryCursor.h"
 
 #include "sqlite_common.h"
 
-JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteQueryCursor_nativeMoveToNext
+JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteQueryCursor_nativeMoveToNext
 (JNIEnv* env, jclass clazz, jlong statementPtr) {
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     int err = sqlite3_step(statement);
@@ -32,7 +32,7 @@ JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteQueryCu
     return false;
 }
 
-JNIEXPORT jstring JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteQueryCursor_nativeGetString
+JNIEXPORT jstring JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteQueryCursor_nativeGetString
 (JNIEnv* env, jclass clazz, jlong statementPtr, jint columnIndex) {
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     if (sqlite3_column_type(statement, columnIndex) == SQLITE_NULL) {
@@ -46,25 +46,25 @@ JNIEXPORT jstring JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteQueryCur
     return env->NewStringUTF(value);
 }
 
-JNIEXPORT jint JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteQueryCursor_nativeGetInt
+JNIEXPORT jint JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteQueryCursor_nativeGetInt
 (JNIEnv* env, jclass clazz, jlong statementPtr, jint columnIndex) {
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     return sqlite3_column_int(statement, columnIndex);
 }
 
-JNIEXPORT jlong JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteQueryCursor_nativeGetLong
+JNIEXPORT jlong JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteQueryCursor_nativeGetLong
 (JNIEnv* env, jclass clazz, jlong statementPtr, jint columnIndex) {
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     return sqlite3_column_int64(statement, columnIndex);
 }
 
-JNIEXPORT jdouble JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteQueryCursor_nativeGetDouble
+JNIEXPORT jdouble JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteQueryCursor_nativeGetDouble
 (JNIEnv* env, jclass clazz, jlong statementPtr, jint columnIndex) {
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     return sqlite3_column_double(statement, columnIndex);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteQueryCursor_nativeGetBlob
+JNIEXPORT jbyteArray JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteQueryCursor_nativeGetBlob
 (JNIEnv* env, jclass clazz, jlong statementPtr, jint columnIndex) {
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     if (sqlite3_column_type(statement, columnIndex) == SQLITE_NULL) {
@@ -83,7 +83,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteQuery
     return byteArray;
 }
 
-JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_database_sqlite_SQLiteQueryCursor_nativeIsNull
+JNIEXPORT jboolean JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteQueryCursor_nativeIsNull
 (JNIEnv* env, jclass clazz, jlong statementPtr, jint columnIndex) {
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
     return sqlite3_column_type(statement, columnIndex) == SQLITE_NULL;
