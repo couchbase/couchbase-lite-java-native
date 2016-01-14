@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "931DCCFE1BE80C6A0025F6F3"
-               BuildableName = "libsqlite.dylib"
+               BuildableName = "libsqlite3.dylib"
                BlueprintName = "osx-dynamic"
                ReferencedContainer = "container:libsqlite.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "931DCCFE1BE80C6A0025F6F3"
-            BuildableName = "libsqlite.dylib"
+            BuildableName = "libsqlite3.dylib"
             BlueprintName = "osx-dynamic"
             ReferencedContainer = "container:libsqlite.xcodeproj">
          </BuildableReference>
@@ -64,7 +64,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "931DCCFE1BE80C6A0025F6F3"
-            BuildableName = "libsqlite.dylib"
+            BuildableName = "libsqlite3.dylib"
             BlueprintName = "osx-dynamic"
             ReferencedContainer = "container:libsqlite.xcodeproj">
          </BuildableReference>
