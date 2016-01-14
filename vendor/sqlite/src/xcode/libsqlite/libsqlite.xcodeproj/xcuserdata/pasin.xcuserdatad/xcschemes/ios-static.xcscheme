@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "931DCCE81BE8044C0025F6F3"
-               BuildableName = "libsqlite.a"
+               BuildableName = "libsqlite3.a"
                BlueprintName = "ios-static"
                ReferencedContainer = "container:libsqlite.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "931DCCE81BE8044C0025F6F3"
-            BuildableName = "libsqlite.a"
+            BuildableName = "libsqlite3.a"
             BlueprintName = "ios-static"
             ReferencedContainer = "container:libsqlite.xcodeproj">
          </BuildableReference>
@@ -64,7 +64,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "931DCCE81BE8044C0025F6F3"
-            BuildableName = "libsqlite.a"
+            BuildableName = "libsqlite3.a"
             BlueprintName = "ios-static"
             ReferencedContainer = "container:libsqlite.xcodeproj">
          </BuildableReference>
