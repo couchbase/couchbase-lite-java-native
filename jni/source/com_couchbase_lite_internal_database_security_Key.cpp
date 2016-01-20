@@ -23,7 +23,7 @@
 
 #import <CommonCrypto/CommonCrypto.h>
 
-JNIEXPORT jbyteArray JNICALL Java_com_couchbase_lite_database_security_Key_nativeDerivePBKDF2SHA256Key
+JNIEXPORT jbyteArray JNICALL Java_com_couchbase_lite_internal_database_security_Key_nativeDerivePBKDF2SHA256Key
   (JNIEnv *env, jclass clazz, jstring password, jbyteArray salt, jint rounds) {
     if (password == NULL || salt == NULL)
       return NULL;
