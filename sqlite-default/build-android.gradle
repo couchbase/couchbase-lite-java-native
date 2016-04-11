@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
@@ -36,9 +38,12 @@ android {
     }
 
     // call regular ndk-build(.cmd) script from app directory
-    task ndkBuild(type: Exec, description: 'Compile JNI source via NDK') {    
+    task ndkBuild(type: Exec, description: 'Compile JNI source via NDK') {
         def ndkDir = android.ndkDirectory
-        commandLine "$ndkDir/ndk-build", "-C", "src/main"
+        def ndkBuild = "$ndkDir/ndk-build"
+        if(Os.isFamily(Os.FAMILY_WINDOWS))
+            ndkBuild = "$ndkDir\\ndk-build.cmd"
+        commandLine "$ndkBuild", "-C", "src/main"
     }
     ndkBuild.doLast {
         // Remove libsqlite.so
@@ -47,7 +52,10 @@ android {
 
     task cleanNdkBuild(type: Exec, description: 'Clean JNI object files') {
         def ndkDir = android.ndkDirectory
-        commandLine "$ndkDir/ndk-build", "-C", "src/main", "clean"
+        def ndkBuild = "$ndkDir/ndk-build"
+        if(Os.isFamily(Os.FAMILY_WINDOWS))
+            ndkBuild = "$ndkDir\\ndk-build.cmd"
+        commandLine "$ndkBuild", "-C", "src/main", "clean"
     }
     clean.dependsOn 'cleanNdkBuild'
 
