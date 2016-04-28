@@ -302,16 +302,20 @@ binaries.withType(SharedLibraryBinary) { binary ->
         from builderTask.outputFile
     }
 
-    // Jar sqlite3 library:
-    jar.into("native/${os}/${arch}") {
-        def libPath;
-        def libName = os == 'windows' ? "sqlcipher.dll" : (os == 'osx' ? "libsqlcipher.dylib" : "libsqlcipher.so")
-        if (os == "osx") {
-            libPath = "../vendor/sqlcipher/libs/${os}/${libName}"
-        } else {
-            libPath = "../vendor/sqlcipher/libs/${os}/${arch}/${libName}"
+    // Jar libsqlcipher library:
+    // workaround to avoid dupicated libsqlcipher.so
+    // see: https://github.com/couchbase/couchbase-lite-java-core/issues/1185
+    if (binaryName.startsWith("libcbljavasqlcipher")) {
+        jar.into("native/${os}/${arch}") {
+            def libPath;
+            def libName = os == 'windows' ? "sqlcipher.dll" : (os == 'osx' ? "libsqlcipher.dylib" : "libsqlcipher.so")
+            if (os == "osx") {
+                libPath = "../vendor/sqlcipher/libs/${os}/${libName}"
+            } else {
+                libPath = "../vendor/sqlcipher/libs/${os}/${arch}/${libName}"
+            }
+            from libPath
         }
-        from libPath
     }
     
     if (os == "osx") {
