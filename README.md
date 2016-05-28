@@ -35,7 +35,7 @@ $ gradlew -Pspec=<android|java> build
  Make sure that you have the `ANDROID_NDK_HOME` variable defined. For example,
  ```
  #.bashrc:
- export ANDROID_NDK_HOME=~/Android/android-ndk-r10e
+ export ANDROID_NDK_HOME=~/Android/android-ndk-r11c
 ```
 
 ### Linux 
@@ -47,8 +47,7 @@ $ sudo apt-get install g++-multilib
 ```
 
 ### Windows
-* Visual Studio 2013 or later is required. 
-* Note: If you have problem with VS 2015, check [Build on Windows with Visual Studio 2015](https://github.com/couchbase/couchbase-lite-java-native/issues/23).
+* Visual Studio 2015 is required. 
 
 ### OSX
 * Command Line Tools for Xcode is required. You may download the Command Line Tools from the [Apple Developer](https://developer.apple.com/xcode/downloads) website.
