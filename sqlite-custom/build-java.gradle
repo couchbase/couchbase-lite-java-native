@@ -2,11 +2,11 @@ apply plugin: 'cpp'
 apply plugin: 'java'
 apply plugin: 'maven'
 
+version = System.getenv("MAVEN_UPLOAD_VERSION")
+
 repositories {
     jcenter()
 }
-
-version = System.getenv("MAVEN_UPLOAD_VERSION")
 
 ////////////////////////////////////////////
 // For Native Library
@@ -166,6 +166,13 @@ model {
                 } else if (targetPlatform.operatingSystem.windows) {
                     cppCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
                     cppCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+                    cppCompiler.args "-I" + VS_2015_INCLUDE_DIR
+                    if(targetPlatform.architecture.name == "x86") {
+                        linker.args "/LIBPATH:" + VS_2015_LIB_DIR + "/x86"
+                    }
+                    else /*if(targetPlatform.architecture.name == "x86-64" || targetPlatform.architecture.name == "amd64")*/ {
+                        linker.args "/LIBPATH:" + VS_2015_LIB_DIR + "/x64"
+                    }
                 }
 
                 if (toolChain in Gcc) {
