@@ -338,27 +338,38 @@ static const char* createStringFromJSON(const char** in) {
     return (const char *)buf;
 }
 
-static int compareStringsUnicode(const void* context, const char** in1, const char** in2) {
+static int compareStringsUnicode(const void *context, const char **in1, const char **in2) {
     int result = compareStringsUnicodeFast(in1, in2);
     if (result > -2)
         return result;
-    
+
+    const char *str1 = createStringFromJSON(in1);
+    const char *str2 = createStringFromJSON(in2);
+
 #ifdef USE_ICU4C_UNICODE_COMPARE
     CollatorContext* cc = (CollatorContext*)context;
     void* c = cc->getCollator();
     if (c) {
         Collator* collator = (Collator*)c;
-        result = (int)(collator->compare(*in1, *in2));
+        result = (int)(collator->compare(str1, str2));
     } else
         result = 0;
-    return result;
 #else
     // Fast compare failed, so resort to using java.text.Collator
     // HACK : calling back to Java to do unicode string compare.
-    const char* str1 = createStringFromJSON(in1);
-    const char* str2 = createStringFromJSON(in2);
-    return java_unicode_string_compare(str1, str2);
+    result = java_unicode_string_compare(str1, str2);
 #endif
+
+    if (str1 != NULL) {
+        ::free((void*)str1);
+        str1 = NULL;
+    }
+    if (str2 != NULL) {
+        ::free((void*)str2);
+        str2 = NULL;
+    }
+
+    return result;
 }
 
 static double readNumber(const char* start, const char* end, char** endOfNumber) {
