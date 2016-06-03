@@ -363,7 +363,7 @@ static int compareStringsUnicode(const void *context, const char **in1, const ch
     if (c) {
         Collator* collator = (Collator*)c;
         result = (int)(collator->compare(str1, str2));
-    } else{
+    } else {
         result = compareBinary(str1, str2);
     }
 #else
