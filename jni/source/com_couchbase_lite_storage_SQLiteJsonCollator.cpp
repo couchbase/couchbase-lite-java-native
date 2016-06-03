@@ -530,18 +530,24 @@ static void registerCollator(sqlite3* db, const char* locale, const char* icuDat
     const char* localeStr = locale;
     if (localeStr == NULL)
         localeStr = DEFAULT_COLLATOR_LOCALE;
-    
+
+#ifdef ANDROID
     Collator* collator = NULL;
     if (icuDataPath != NULL) {
-#ifdef ANDROID
+        // NOTE: Dictionary file is NOT bundled with library. It is separated dictionary file.
         // Set data path:
         setenv("CBL_ICU_PREFIX", icuDataPath, 1);
-#endif
         // Create ICU Collator:
         collator = createCollator(locale);
-    } else
-        LOGE(SQLITE_COLLATOR_TAG, "Failed to create ICU Collator, No ICU Data Path specified");
-    
+    } else {
+        LOGE(SQLITE_COLLATOR_TAG, "Failed to create ICU Collator, No ICU Data Path specified\n");
+    }
+#else // Java
+    // NOTE: Dictionary file is bundled with library
+    // Create ICU Collator:
+    Collator* collator = createCollator(locale);
+#endif
+
     CollatorContext* context = NULL;
     context = new CollatorContext(sqlite_json_colator_Unicode, collator);
     sqlite3_create_collation_v2(db, "JSON", SQLITE_UTF8, context, collateJSON, (void(*)(void*))collator_dtor);
