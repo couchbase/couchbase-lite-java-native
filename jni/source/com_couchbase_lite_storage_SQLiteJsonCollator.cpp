@@ -338,6 +338,17 @@ static const char* createStringFromJSON(const char** in) {
     return (const char *)buf;
 }
 
+static int compareBinary(const char *str1, const char *str2) {
+    if (str1 == NULL && str2 == NULL)
+        return 0;
+    else if (str1 != NULL && str2 == NULL)
+        return 1;
+    else if (str1 == NULL && str2 != NULL)
+        return -1;
+    else
+        return strcmp(str1, str2);
+}
+
 static int compareStringsUnicode(const void *context, const char **in1, const char **in2) {
     int result = compareStringsUnicodeFast(in1, in2);
     if (result > -2)
@@ -352,8 +363,9 @@ static int compareStringsUnicode(const void *context, const char **in1, const ch
     if (c) {
         Collator* collator = (Collator*)c;
         result = (int)(collator->compare(str1, str2));
-    } else
-        result = 0;
+    } else {
+        result = compareBinary(str1, str2);
+    }
 #else
     // Fast compare failed, so resort to using java.text.Collator
     // HACK : calling back to Java to do unicode string compare.
@@ -361,11 +373,11 @@ static int compareStringsUnicode(const void *context, const char **in1, const ch
 #endif
 
     if (str1 != NULL) {
-        ::free((void*)str1);
+        ::free((void *) str1);
         str1 = NULL;
     }
     if (str2 != NULL) {
-        ::free((void*)str2);
+        ::free((void *) str2);
         str2 = NULL;
     }
 
