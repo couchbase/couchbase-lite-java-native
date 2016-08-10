@@ -14,44 +14,22 @@ repositories {
 
 model {
     platforms {
-        osx_x86 {
-            architecture "x86"
-            operatingSystem "osx"
-        }
-        osx_x86_64 {
-            architecture "x86_64"
-            operatingSystem "osx"
-        }
-        linux_x86 {
-            architecture "x86"
+	linux_arm {
+	    architecture "arm"
             operatingSystem "linux"
-        }
-        linux_x86_64 {
-            architecture "x86_64"
-            operatingSystem "linux"
-        }
-        linux_amd64 {
-            architecture "amd64"
-            operatingSystem "linux"
-        }
-        windows_x86 {
-            architecture "x86"
-            operatingSystem "windows"
-        }
-        windows_x86_64 {
-            architecture "x86_64"
-            operatingSystem "windows"
-        }
-        windows_amd64 {
-            architecture "amd64"
-            operatingSystem "windows"
-        }
+	}
     }
 
     toolChains {
-        visualCpp(VisualCpp)
-        gcc(Gcc)
-        clang(Clang)
+        gcc(Gcc) {
+	     target("linux_arm") {
+                cppCompiler.executable = 'arm-linux-gnueabihf-g++'
+                cCompiler.executable = 'arm-linux-gnueabihf-gcc'
+                assembler.executable = 'arm-linux-gnueabihf-as'
+                linker.executable = 'arm-linux-gnueabihf-g++'
+                staticLibArchiver.executable = 'arm-linux-gnueabihf-ar'
+            }
+	}
     }
 
     repositories {
@@ -59,23 +37,16 @@ model {
             libsqlite3 {
                 headers.srcDir "../vendor/sqlite/src/headers"
                 binaries.withType(SharedLibraryBinary) {
-                    def platformName = targetPlatform.name
-                    def os = targetPlatform.operatingSystem.name;
-                    def arch = targetPlatform.architecture.name.replaceAll("-", "_")
-                    if (platformName == "windows_amd64" || platformName == "linux_amd64") {
-                        arch = "amd64"
-                    }
-                    def libName = os == 'windows' ? "sqlite3.lib" : (os == 'osx' ? "libsqlite3.dylib" : "libsqlite3.so")
-                    def libPath;
-                    if (os == "osx") {
-                        libPath = "../vendor/sqlite/libs/${os}/${libName}"
-                    } else {
-                        libPath = "../vendor/sqlite/libs/${os}/${arch}/${libName}"
-                    }
+                    def platformName = "linux_arm"
+                    def os = "linux"
+                    def arch = "arm"
+                    def libName = "libsqlite3.so"
+                    def libPath = "../vendor/sqlite/libs/${os}/${arch}/${libName}"
                     sharedLibraryFile = file(libPath)
                 }
             }
-            libicuuc{
+	    //TODO
+            /*libicuuc{
                 headers.srcDir "../vendor/icu4c-android/include/common"
                 headers.srcDir "../vendor/icu4c-android/include/i18n"
                 binaries.withType(StaticLibraryBinary) {
@@ -122,20 +93,13 @@ model {
                     def libPath = "../vendor/icu4c-android/libs/${osName}/${arch}/${libName}"
                     staticLibraryFile = file(libPath)
                 }            
-            }
+            }*/
         }
     }
 
     components {
         cbljavasqlitecustom(NativeLibrarySpec) {
-            targetPlatform "osx_x86"
-            targetPlatform "osx_x86_64"
-            targetPlatform "linux_x86"
-            targetPlatform "linux_x86_64"
-            targetPlatform "linux_amd64"
-            targetPlatform "windows_x86"
-            targetPlatform "windows_x86_64"
-            targetPlatform "windows_amd64"
+		targetPlatform "linux_arm"
             sources {
                 cpp {
                     source {
@@ -146,40 +110,22 @@ model {
                         srcDir "../jni/headers"
                     }
                     lib library: 'libsqlite3', linkage: 'shared'
-                    lib library: 'libicui18n', linkage: 'static'
-                    lib library: 'libicuuc',   linkage: 'static'
-                    lib library: 'libicudata', linkage: 'static'
+		    //TODO
+                    //lib library: 'libicui18n', linkage: 'static'
+                    //lib library: 'libicuuc',   linkage: 'static'
+                    //lib library: 'libicudata', linkage: 'static'
                 }
             }
             binaries.withType(StaticLibraryBinary) { binary ->
                 buildable = false
             }
             binaries.all {
-                cppCompiler.args '-DUSE_ICU4C_UNICODE_COMPARE -DU_STATIC_IMPLEMENTATION'
-                if (targetPlatform.operatingSystem.macOsX) {
-                    cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
-                    cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
-                    linker.args '-framework', "JavaVM"
-                } else if (targetPlatform.operatingSystem.linux) {
-                    cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
-                    cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
-                } else if (targetPlatform.operatingSystem.windows) {
-                    cppCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
-                    cppCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
-                    cppCompiler.args "-I" + VS_2015_INCLUDE_DIR
-                    if(targetPlatform.architecture.name == "x86") {
-                        linker.args "/LIBPATH:" + VS_2015_LIB_DIR + "/x86"
-                    }
-                    else /*if(targetPlatform.architecture.name == "x86-64" || targetPlatform.architecture.name == "amd64")*/ {
-                        linker.args "/LIBPATH:" + VS_2015_LIB_DIR + "/x64"
-                    }
-                }
-
-                if (toolChain in Gcc) {
-                    cppCompiler.args "-ffunction-sections", "-fdata-sections", "-fomit-frame-pointer"
-                    linker.args "-Wl,--no-undefined"
-                    linker.args "-lpthread", "-ldl"                 
-                }
+                cppCompiler.args '-DU_STATIC_IMPLEMENTATION'
+                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
+                cppCompiler.args "-ffunction-sections", "-fdata-sections", "-fomit-frame-pointer"
+                linker.args "-Wl,--no-undefined"
+                linker.args "-lpthread", "-ldl"
             }
         }
     }
@@ -188,17 +134,10 @@ model {
 jar.baseName = "couchbase-lite-java-sqlite-custom"
 
 binaries.withType(SharedLibraryBinary) { binary ->
-    if (!buildable) {
-        return
-    }
-
     def builderTask = binary.tasks
-    def platformName = targetPlatform.name
-    def os = targetPlatform.operatingSystem.name
-    def arch = targetPlatform.architecture.name.replaceAll("-", "_")
-    if (platformName == "windows_amd64" || platformName == "linux_amd64") {
-        arch = "amd64"
-    }
+    def platformName = "linux_arm"
+    def os = "linux"
+    def arch = "arm" 
 
     // Postprocessor task for OSX:
     def binaryName = builderTask.outputFile.get(0).getName();
@@ -218,21 +157,12 @@ binaries.withType(SharedLibraryBinary) { binary ->
 
     // Jar sqlite3 library:
     jar.into("native/${os}/${arch}") {
-        def libPath;
-        def libName = os == 'windows' ? "sqlite3.dll" : (os == 'osx' ? "libsqlite3.dylib" : "libsqlite3.so")
-        if (os == "osx") {
-            libPath = "../vendor/sqlite/libs/${os}/${libName}"
-        } else {
-            libPath = "../vendor/sqlite/libs/${os}/${arch}/${libName}"
-        }
-        from libPath
+        def libName = "libsqlite3.so" 
+        def libPath = "../vendor/sqlite/libs/${os}/${arch}/${libName}"
+	from libPath
     }
 
-    if (os == "osx") {
-        jar.dependsOn "${postprocessTask}"
-    } else {
-        jar.dependsOn builderTask
-    }
+   jar.dependsOn builderTask
 }
 
 ////////////////////////////////////////////

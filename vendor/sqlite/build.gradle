@@ -23,6 +23,10 @@ model {
             architecture "amd64"
             operatingSystem "linux"
         }
+	linux_arm {
+	    architecture "arm"
+	    operatingSystem "linux"
+	}
         windows_x86 {
             architecture "x86"
             operatingSystem "windows"
@@ -39,7 +43,15 @@ model {
 
     toolChains {
         visualCpp(VisualCpp)
-        gcc(Gcc)
+        gcc(Gcc) {
+	    target("linux_arm") {
+		cppCompiler.executable = 'arm-linux-gnueabihf-g++'
+                cCompiler.executable = 'arm-linux-gnueabihf-gcc'
+                assembler.executable = 'arm-linux-gnueabihf-as'
+                linker.executable = 'arm-linux-gnueabihf-g++'
+                staticLibArchiver.executable = 'arm-linux-gnueabihf-ar'
+	    }		
+	}
         clang(Clang)
     }
 
@@ -53,6 +65,7 @@ model {
             targetPlatform "windows_x86"
             targetPlatform "windows_x86_64"
             targetPlatform "windows_amd64"
+	    targetPlatform "linux_arm"
             sources {
                 c {
                     source {
@@ -68,7 +81,9 @@ model {
                 def arch = targetPlatform.architecture.name.replaceAll("-", "_")
                 if (platformName == "windows_amd64" || platformName == "linux_amd64") {
                     arch = "amd64"
-                }
+                } else if(platformName == "linux_arm") {
+		    arch = "arm"
+		}
 
                 cCompiler.args "-DSQLITE_ENABLE_COLUMN_METADATA"
                 cCompiler.args "-DSQLITE_ENABLE_FTS3"
@@ -115,6 +130,8 @@ binaries.withType(SharedLibraryBinary) { binary ->
     def arch = targetPlatform.architecture.name.replaceAll("-", "_")
     if (platformName == "windows_amd64" || platformName == "linux_amd64") {
         arch = "amd64"
+    } else if(platformName == "linux_arm") {
+        arch = "arm"
     }
 
     jar.into("libs/${os}/${arch}") {
@@ -135,6 +152,8 @@ binaries.withType(StaticLibraryBinary) { binary ->
     def arch = targetPlatform.architecture.name.replaceAll("-", "_")
     if (platformName == "windows_amd64" || platformName == "linux_amd64") {
         arch = "amd64"
+    } else if(platformName == "linux_arm") {
+	arch = "arm"
     }
 
     jar.into("libs/${os}/${arch}") {
