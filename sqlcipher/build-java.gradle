@@ -4,6 +4,9 @@ apply plugin: 'maven'
 
 version = System.getenv("MAVEN_UPLOAD_VERSION")
 
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
 repositories {
     jcenter()
 }
