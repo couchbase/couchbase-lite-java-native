@@ -322,7 +322,8 @@ binaries.withType(SharedLibraryBinary) { binary ->
     // Jar libsqlcipher library:
     // workaround to avoid dupicated libsqlcipher.so
     // see: https://github.com/couchbase/couchbase-lite-java-core/issues/1185
-    if (binaryName.startsWith("libcbljavasqlcipher")) {
+    // Windows: no libxxxx
+    if (binaryName.indexOf("cbljavasqlcipher") != -1) {
         jar.into("native/${os}/${arch}") {
             def libPath;
             def libName = os == 'windows' ? "sqlcipher.dll" : (os == 'osx' ? "libsqlcipher.dylib" : "libsqlcipher.so")
