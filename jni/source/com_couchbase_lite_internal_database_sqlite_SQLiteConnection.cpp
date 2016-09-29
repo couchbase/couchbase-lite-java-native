@@ -78,6 +78,10 @@ JNIEXPORT jlong JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteC
         sqliteFlags = SQLITE_OPEN_READWRITE;
     }
 
+    // Serialized. In serialized mode, SQLite can be safely used by multiple threads with no restriction.
+    // https://www.sqlite.org/threadsafe.html
+    sqliteFlags |= SQLITE_OPEN_FULLMUTEX;
+
     const char* pathCStr = env->GetStringUTFChars(pathStr, NULL);
     std::string path(pathCStr);
     env->ReleaseStringUTFChars(pathStr, pathCStr);
@@ -94,15 +98,12 @@ JNIEXPORT jlong JNICALL Java_com_couchbase_lite_internal_database_sqlite_SQLiteC
         return 0;
     }
 
-    // Once Couchbase Lite change the supported Android API version to 16 or higher,
-    // we should remove following comment out.
-    // https://github.com/couchbase/couchbase-lite-android/issues/792
     // Check that the database is really read/write when that is what we asked for.
-//    if ((sqliteFlags & SQLITE_OPEN_READWRITE) && sqlite3_db_readonly(db, NULL)) {
-//        throw_sqlite3_exception(env, db, "Could not open the database in read/write mode.");
-//        sqlite3_close(db);
-//        return 0;
-//    }
+    if ((sqliteFlags & SQLITE_OPEN_READWRITE) && sqlite3_db_readonly(db, NULL)) {
+        throw_sqlite3_exception(env, db, "Could not open the database in read/write mode.");
+        sqlite3_close(db);
+        return 0;
+    }
     
     // Set the default busy handler to retry automatically before returning SQLITE_BUSY.
     err = sqlite3_busy_timeout(db, BUSY_TIMEOUT_MS);
