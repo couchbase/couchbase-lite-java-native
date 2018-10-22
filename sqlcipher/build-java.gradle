@@ -391,13 +391,27 @@ uploadArchives {
             pom.groupId = 'com.couchbase.lite'
             pom.artifactId = 'couchbase-lite-java-sqlcipher'
             pom.project {
+                name 'com.couchbase.lite:couchbase-lite-java-sqlcipher'
+                description 'This is a shared native SQLite library used for Couchbase Lite Java.'
+                url 'http://developer.couchbase.com/mobile/'
                 licenses {
                     license {
-                        name 'Couchbase Community Edition License Agreement'
-                        url 'http://www.couchbase.com/agreement/community'
+                        name 'Couchbase, Inc. Community Edition License Agreement'
+                        url 'https://www.couchbase.com/binaries/content/assets/website/legal/ce-license-agreement.pdf'
                         distribution 'repo'
                     }
                 }
+                scm {
+                    url 'http://developer.couchbase.com/mobile/'
+                }
+                developers {
+                    developer {
+                        name 'Couchbase Mobile'
+                        email 'mobile@couchbase.com'
+                        organization 'Couchbase'
+                        organizationUrl 'http://www.couchbase.com'
+                    }
+               }
             }
         }
     }
